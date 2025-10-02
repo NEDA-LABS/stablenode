@@ -33,3 +33,5 @@ __debug*
 # env files
 .env
 
+#cached
+tmp/
