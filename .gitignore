@@ -29,3 +29,7 @@ __debug*
 
 # Misc
 .air.toml
+
+# env files
+.env
+
