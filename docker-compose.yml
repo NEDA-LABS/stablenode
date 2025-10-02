@@ -48,6 +48,8 @@ services:
     tmpfs:
       - /root/.cache/go-build:rw,noexec,nosuid,size=2G  # Mount tmpfs for build cache
     restart: always
+    environment:
+      - GOFLAGS=-buildvcs=false
 
 # Define volumes
 volumes:
