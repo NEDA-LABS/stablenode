@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/network"
-	"github.com/paycrest/aggregator/ent/paymentorder"
-	"github.com/paycrest/aggregator/ent/paymentwebhook"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/network"
+	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/paymentwebhook"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // PaymentWebhookQuery is the builder for querying PaymentWebhook entities.

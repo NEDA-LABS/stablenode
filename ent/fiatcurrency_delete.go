@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/fiatcurrency"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // FiatCurrencyDelete is the builder for deleting a FiatCurrency entity.

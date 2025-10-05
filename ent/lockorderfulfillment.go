@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/lockorderfulfillment"
-	"github.com/paycrest/aggregator/ent/lockpaymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/lockorderfulfillment"
+	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
 )
 
 // LockOrderFulfillment is the model entity for the LockOrderFulfillment schema.

@@ -19,12 +19,12 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/shopspring/decimal"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent/network"
-	"github.com/paycrest/aggregator/services/contracts"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/types"
-	cryptoUtils "github.com/paycrest/aggregator/utils/crypto"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent/network"
+	"github.com/NEDA-LABS/stablenode/services/contracts"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/types"
+	cryptoUtils "github.com/NEDA-LABS/stablenode/utils/crypto"
 	"github.com/stackup-wallet/stackup-bundler/pkg/userop"
 )
 

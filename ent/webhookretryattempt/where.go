@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

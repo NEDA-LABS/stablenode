@@ -10,10 +10,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/apikey"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/ent/providerrating"
-	"github.com/paycrest/aggregator/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/apikey"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/ent/providerrating"
+	"github.com/NEDA-LABS/stablenode/ent/user"
 )
 
 // ProviderProfile is the model entity for the ProviderProfile schema.

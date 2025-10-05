@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/fiatcurrency"
-	"github.com/paycrest/aggregator/ent/lockpaymentorder"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/ent/provisionbucket"
+	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
+	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
 	"github.com/shopspring/decimal"
 )
 

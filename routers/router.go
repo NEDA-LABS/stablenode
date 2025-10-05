@@ -1,9 +1,9 @@
 package routers
 
 import (
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/routers/middleware"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/routers/middleware"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 
 	"github.com/gin-gonic/gin"
 )

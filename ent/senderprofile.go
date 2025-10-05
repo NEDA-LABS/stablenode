@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/apikey"
-	"github.com/paycrest/aggregator/ent/senderprofile"
-	"github.com/paycrest/aggregator/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/apikey"
+	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
+	"github.com/NEDA-LABS/stablenode/ent/user"
 )
 
 // SenderProfile is the model entity for the SenderProfile schema.

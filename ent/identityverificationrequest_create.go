@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/identityverificationrequest"
+	"github.com/NEDA-LABS/stablenode/ent/identityverificationrequest"
 )
 
 // IdentityVerificationRequestCreate is the builder for creating a IdentityVerificationRequest entity.

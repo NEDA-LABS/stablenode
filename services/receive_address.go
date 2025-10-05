@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	cryptoUtils "github.com/paycrest/aggregator/utils/crypto"
+	cryptoUtils "github.com/NEDA-LABS/stablenode/utils/crypto"
 	tronWallet "github.com/paycrest/tron-wallet"
 	tronEnums "github.com/paycrest/tron-wallet/enums"
 )

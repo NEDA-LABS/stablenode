@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils/crypto"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils/crypto"
 
-	"github.com/paycrest/aggregator/services/contracts"
+	"github.com/NEDA-LABS/stablenode/services/contracts"
 )
 
 // SetUpTestBlockchain sets up a connection to a local Ethereum blockchain.

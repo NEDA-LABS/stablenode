@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/lockpaymentorder"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/ent/provisionbucket"
-	"github.com/paycrest/aggregator/ent/token"
+	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
+	"github.com/NEDA-LABS/stablenode/ent/token"
 	"github.com/shopspring/decimal"
 )
 

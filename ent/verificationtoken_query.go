@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/predicate"
-	"github.com/paycrest/aggregator/ent/user"
-	"github.com/paycrest/aggregator/ent/verificationtoken"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
 )
 
 // VerificationTokenQuery is the builder for querying VerificationToken entities.

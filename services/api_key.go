@@ -5,11 +5,11 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils/crypto"
-	"github.com/paycrest/aggregator/utils/token"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils/crypto"
+	"github.com/NEDA-LABS/stablenode/utils/token"
 )
 
 // APIKeyService provides functionality related to API keys.

@@ -11,7 +11,7 @@ import (
 
 	sentryhook "github.com/chadsr/logrus-sentry"
 	"github.com/getsentry/sentry-go"
-	"github.com/paycrest/aggregator/config"
+	"github.com/NEDA-LABS/stablenode/config"
 	"github.com/sirupsen/logrus"
 )
 

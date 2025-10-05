@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/identityverificationrequest"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/identityverificationrequest"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // IdentityVerificationRequestUpdate is the builder for updating IdentityVerificationRequest entities.

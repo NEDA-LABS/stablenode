@@ -1,108 +1,425 @@
-## Paycrest Aggregator
+# NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation ---oct 5, 2025
 
-The aggregator works to simplify and automate how liquidity flows between various provision nodes and user-created orders.
+## Overview
 
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA aggregator system, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration.
 
-## Protocol Architecture
+## Architecture Components
 
-![image](https://github.com/user-attachments/assets/fdea36e5-9f54-4b17-bf0d-44d33d96fc62)
+### Core Services
+- **Order Service**: Handles order creation and smart contract interactions (`services/order/`)
+- **Indexer Service**: Monitors blockchain events and updates database state (`services/indexer/`)
+- **Engine Service**: Manages RPC connections and blockchain interactions (`services/engine.go`)
+- **Priority Queue Service**: Manages order processing queues (`services/priority_queue.go`)
 
-**Create Order**: The user creates an on/off ramp order (read Payment Intent) on the Gateway Smart Contract (escrow) through an onchain app built on the protocol like [Zap by Paycrest](https://github.com/paycrest/zap) or through our [Sender API](https://app.paycrest.io/).
+### Database Layer
+- **Ent ORM**: Database schema and operations (`ent/`)
+- **PostgreSQL**: Primary data store
+- **Redis**: Caching and session management
 
-**Aggregate**: The aggregator node indexes the order and assigns it to one or more provision nodes run by liquidity providers.
+### Smart Contracts
+- **Gateway Contract**: Main order processing contract
+- **EntryPoint Contract**: ERC-4337 Account Abstraction entry point
+- **SimpleAccount**: Smart wallet implementation
+- **ERC20 Tokens**: Supported payment tokens
 
-**Fulfill**: The provisioning node automatically disburses funds to their wallet or recipient's local bank account, mobile money wallet via connections to payment service providers (PSP).
+## Order Lifecycle Phases
 
-## Development Setup
+### Phase 1: Order Initiation
 
-Pre-requisite: Install required dependencies:
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Ent](https://entgo.io/docs/getting-started/) for database ORM
-- [Atlas](https://atlasgo.io/guides/evaluation/install#install-atlas-locally) for database migrations
+#### 1.1 API Request Processing
+**File**: `controllers/index.go`
+**Function**: Order creation endpoints
 
-To set up your development environment, follow these steps:
-
-1. Setup the aggregator repo on your local machine.
-
-```bash
-
-# clone the repo
-
-git clone https://github.com/paycrest/aggregator.git
-
-cd aggregator
-
-# copy enviroment variables
-
-cp .env.example .env
+```go
+// Entry point for order creation requests
+func (ctrl *Controller) CreateOrder(ctx *gin.Context) {
+    // Validates request payload
+    // Authenticates user
+    // Creates initial order record
+}
 ```
 
-2. Start and seed the development environment:
-```bash
+**Database Operations**:
+- Creates `PaymentOrder` entity with status `order_initiated`
+- Links to `Recipient`, `Token`, and `Network` entities
+- Generates unique order ID and receive address
 
-# build the image
-docker-compose build
+#### 1.2 Receive Address Generation
+**File**: `services/receive_address.go`
 
-# run containers
-docker-compose up -d
-
-# make script executable
-chmod +x scripts/import_db.sh
-
-# run the script to seed db with sample configured sender & provider profile
-./scripts/import_db.sh -h localhost
+```go
+// Generates unique receive addresses for orders
+func GenerateReceiveAddress(order *ent.PaymentOrder) (string, error) {
+    // Uses HD wallet derivation
+    // Creates time-limited receive address
+    // Links to payment order
+}
 ```
 
-3. Run our sandbox provision node and connect it to your local aggregator by following the [instructions here](https://paycrest.notion.site/run-sandbox-provision-node)
+**Database Operations**:
+- Creates `ReceiveAddress` entity
+- Sets expiration time based on `RECEIVE_ADDRESS_VALIDITY`
+- Links to payment order
 
-Here, we’d make use of a demo provision node and connect it to our local aggregator
+### Phase 2: Crypto Deposit Detection
 
-That's it! The server will now be running at http://localhost:8000. You can use an API testing tool like Postman or cURL to interact with the Sender API using the sandbox API Key `11f93de0-d304-4498-8b7b-6cecbc5b2dd8`.
+#### 2.1 Blockchain Monitoring
+**Files**: 
+- `services/indexer/evm.go` - Ethereum-based chains
+- `services/indexer/tron.go` - Tron network
 
-
-## Usage
-- Try a decentralized offramp on [Zap by Paycrest](https://zap.paycrest.io)
-- [Swagger REST API Specification](https://app.swaggerhub.com/apis/paycrest-dev/paycrest-api/0.1.0)
-- Interact with the Sender API using the sandbox API Key `11f93de0-d304-4498-8b7b-6cecbc5b2dd8`
- - Payment orders that are initiated using the Sender API in sandbox should use the following testnet tokens from the public faucets of their respective networks:
-	 - **DAI** on Base Sepolia
-	 - **USDT** on Ethereum Sepolia and Arbitrum Sepolia
-
-
-## Contributing
-
-We welcome contributions to the Paycrest Protocol! To get started, follow these steps:
-
-**Important:** Before you begin contributing, please ensure you've read and understood these important documents:
-
-- [Contribution Guide](https://paycrest.notion.site/Contribution-Guide-1602482d45a2809a8930e6ad565c906a) - Critical information about development process, standards, and guidelines.
-
-- [Code of Conduct](https://paycrest.notion.site/Contributor-Code-of-Conduct-1602482d45a2806bab75fd314b381f4c) - Our community standards and expectations.
-
-Our team will review your pull request and work with you to get it merged into the main branch of the repository.
-
-If you encounter any issues or have questions, feel free to open an issue on the repository or leave a message in our [developer community on Telegram](https://t.me/+Stx-wLOdj49iNDM0)
-
-
-## Testing
-
-We use a combination of unit tests and integration tests to ensure the reliability of the codebase.
-
-To run the tests, run the following command:
-
-```bash
-# install and run ganache local blockchain
-npm install ganache --global
-HD_WALLET_MNEMONIC="media nerve fog identify typical physical aspect doll bar fossil frost because"; ganache -m "$HD_WALLET_MNEMONIC" --chain.chainId 1337 -l 21000000
-
-# run all tests
-go test ./...
-
-# run a specific test
-go test ./path/to/test/file
+```go
+// Monitors blockchain for incoming transfers
+func (s *IndexerEVM) IndexReceiveAddress(ctx context.Context, token *ent.Token, address string, fromBlock int64, toBlock int64, txHash string) (*types.EventCounts, error) {
+    // Scans for Transfer events to receive address
+    // Validates transfer amount and token
+    // Triggers order processing
+}
 ```
-It is mandatory that you write tests for any new features or changes you make to the codebase. Only PRs that include passing tests will be accepted.
 
-## License
+**Event Processing**:
+- Listens for ERC-20 `Transfer` events
+- Validates transfer amount meets order requirements
+- Updates order status to `crypto_deposited`
 
-[Affero General Public License v3.0](https://choosealicense.com/licenses/agpl-3.0/)
+#### 2.2 Transfer Event Handling
+**File**: `controllers/index.go`
+**Function**: `handleTransferEvent`
+
+```go
+func (ctrl *Controller) handleTransferEvent(ctx *gin.Context, event types.ThirdwebWebhookEvent) error {
+    // Processes incoming transfer events
+    // Validates against pending orders
+    // Triggers order creation on blockchain
+}
+```
+
+**Database Operations**:
+- Updates `PaymentOrder` status
+- Creates `TransactionLog` entries
+- Records transfer transaction hash
+
+### Phase 3: Smart Contract Order Creation
+
+#### 3.1 Order Preparation
+**Files**:
+- `services/order/evm.go` - Ethereum chains
+- `services/order/tron.go` - Tron network
+
+```go
+// Prepares order for blockchain submission
+func (s *OrderEVM) CreateOrder(order *ent.PaymentOrder) error {
+    // Encrypts recipient details
+    // Prepares smart contract call data
+    // Submits via Account Abstraction
+}
+```
+
+**Smart Contract Interaction**:
+- Calls `Gateway.createOrder()` function
+- Passes encrypted recipient data
+- Uses ERC-4337 UserOperation for gas-less execution
+
+#### 3.2 Account Abstraction Integration
+**File**: `utils/userop.go`
+
+```go
+// Creates and submits UserOperations
+func CreateUserOperation(order *ent.PaymentOrder) (*userop.UserOperation, error) {
+    // Builds UserOperation structure
+    // Signs with aggregator private key
+    // Submits to bundler service (Biconomy/Alchemy)
+}
+```
+
+**Process Flow**:
+1. Creates UserOperation with order data
+2. Signs with `AGGREGATOR_PRIVATE_KEY`
+3. Submits to AA bundler service
+4. Bundler includes in batch transaction
+5. EntryPoint contract validates and executes
+
+#### 3.3 Gateway Contract Execution
+**File**: `services/contracts/Gateway.go`
+**Generated from**: Gateway.sol
+
+```solidity
+// Gateway contract createOrder function
+function createOrder(
+    address _token,
+    uint256 _amount,
+    uint96 _rate,
+    address _senderFeeRecipient,
+    uint256 _senderFee,
+    address _refundAddress,
+    string memory messageHash
+) external returns (bytes32 orderId)
+```
+
+**Contract Operations**:
+- Validates token and amount
+- Calculates protocol fees
+- Emits `OrderCreated` event
+- Returns unique order ID
+
+### Phase 4: Event Processing and Database Updates
+
+#### 4.1 OrderCreated Event Handling
+**File**: `controllers/index.go`
+**Function**: `handleOrderCreatedEvent`
+
+```go
+func (ctrl *Controller) handleOrderCreatedEvent(ctx *gin.Context, event types.ThirdwebWebhookEvent) error {
+    // Processes OrderCreated events from Gateway contract
+    // Updates order status in database
+    // Triggers provider notification
+}
+```
+
+**Event Structure**:
+```go
+type OrderCreatedEvent struct {
+    BlockNumber int64
+    TxHash      string
+    Token       string
+    Amount      decimal.Decimal
+    OrderId     string
+    Rate        decimal.Decimal
+    MessageHash string
+}
+```
+
+#### 4.2 Database State Updates
+**Database Operations**:
+- Updates `PaymentOrder` status to `order_created`
+- Records blockchain transaction hash
+- Creates `LockPaymentOrder` for provider matching
+- Updates `TransactionLog` with event details
+
+### Phase 5: Provider Matching and Settlement
+
+#### 5.1 Lock Order Creation
+**File**: `services/common/order.go`
+
+```go
+// Creates lock orders for provider matching
+func CreateLockOrder(order *ent.PaymentOrder) error {
+    // Splits order into provider-sized chunks
+    // Creates LockPaymentOrder entities
+    // Notifies available providers
+}
+```
+
+**Provider Matching Logic**:
+- Queries available providers by token and amount
+- Considers provider rates and availability
+- Creates lock orders with expiration times
+
+#### 5.2 Provider Settlement
+**Files**:
+- `controllers/provider/provider.go` - Provider endpoints
+- `services/order/evm.go` - Settlement execution
+
+```go
+// Processes provider settlement
+func (s *OrderEVM) SettleOrder(lockOrder *ent.LockPaymentOrder, provider *ent.ProviderProfile) error {
+    // Validates provider settlement
+    // Calls Gateway.settle() function
+    // Updates order status
+}
+```
+
+**Settlement Process**:
+1. Provider claims lock order
+2. Provides off-chain payment proof
+3. System validates settlement
+4. Calls `Gateway.settle()` with settlement details
+5. Emits `OrderSettled` event
+
+### Phase 6: Order Completion
+
+#### 6.1 OrderSettled Event Processing
+**File**: `controllers/index.go`
+**Function**: `handleOrderSettledEvent`
+
+```go
+func (ctrl *Controller) handleOrderSettledEvent(ctx *gin.Context, event types.ThirdwebWebhookEvent) error {
+    // Processes settlement events
+    // Updates order status to fulfilled
+    // Releases provider funds
+}
+```
+
+#### 6.2 Final Status Updates
+**Database Operations**:
+- Updates `PaymentOrder` status to `order_fulfilled`
+- Updates `LockPaymentOrder` status to `settled`
+- Records final settlement transaction
+- Calculates and records fees
+
+### Phase 7: Refund Handling (Alternative Path)
+
+#### 7.1 Refund Triggers
+**Conditions for Refund**:
+- Order timeout (no provider settlement)
+- Provider cancellation
+- System error conditions
+- Manual admin refund
+
+#### 7.2 Refund Execution
+**File**: `services/order/evm.go`
+
+```go
+// Processes order refunds
+func (s *OrderEVM) RefundOrder(order *ent.PaymentOrder) error {
+    // Validates refund conditions
+    // Calls Gateway.refund() function
+    // Returns funds to user
+}
+```
+
+**Refund Process**:
+1. System detects refund condition
+2. Calls `Gateway.refund()` with order ID
+3. Contract validates and processes refund
+4. Emits `OrderRefunded` event
+5. Updates database status
+
+## File Structure and Responsibilities
+
+### Controllers Layer
+```
+controllers/
+├── index.go              # Main API endpoints, webhook handlers
+├── provider/provider.go  # Provider-specific endpoints
+└── sender/sender.go      # Sender/user endpoints
+```
+
+### Services Layer
+```
+services/
+├── order/
+│   ├── evm.go           # Ethereum-based order processing
+│   └── tron.go          # Tron network order processing
+├── indexer/
+│   ├── evm.go           # Ethereum event indexing
+│   └── tron.go          # Tron event indexing
+├── common/
+│   ├── order.go         # Shared order logic
+│   └── indexer.go       # Shared indexing logic
+├── contracts/           # Generated contract bindings
+├── engine.go            # RPC client management
+└── priority_queue.go    # Order queue management
+```
+
+### Database Layer
+```
+ent/
+├── paymentorder/        # Main order entities
+├── lockpaymentorder/    # Provider lock orders
+├── transactionlog/      # Transaction history
+├── receiveaddress/      # Generated addresses
+└── network/             # Blockchain networks
+```
+
+### Utilities
+```
+utils/
+├── userop.go           # Account Abstraction utilities
+├── rpc_events.go       # Event decoding utilities
+└── crypto/             # Cryptographic utilities
+```
+
+## Configuration and Environment
+
+### Key Environment Variables
+```bash
+# Smart Contract Addresses
+ENTRY_POINT_CONTRACT_ADDRESS=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+AGGREGATOR_SMART_ACCOUNT=0x03Ff9504c7067980c1637BF9400E7b7e3655782c
+
+# Order Configuration
+ORDER_FULFILLMENT_VALIDITY=1    # minutes
+ORDER_REFUND_TIMEOUT=5          # minutes
+RECEIVE_ADDRESS_VALIDITY=30     # minutes
+
+# Account Abstraction
+AGGREGATOR_PRIVATE_KEY="..."    # Signs UserOperations
+AGGREGATOR_PUBLIC_KEY="..."     # Verification key
+```
+
+### Network Configuration
+Each supported blockchain network requires:
+- RPC endpoint configuration
+- Gateway contract address
+- Supported token contracts
+- Gas price and fee settings
+
+## Error Handling and Recovery
+
+### Automatic Recovery
+- Failed transactions are retried with exponential backoff
+- Stuck orders are automatically refunded after timeout
+- Provider failures trigger alternative provider selection
+
+### Manual Intervention
+- Admin endpoints for order status override
+- Manual refund processing capabilities
+- Provider performance monitoring and adjustment
+
+## Monitoring and Observability
+
+### Logging
+- Structured logging with correlation IDs
+- Transaction-level tracing
+- Performance metrics collection
+
+### Event Tracking
+- Real-time order status updates
+- Provider performance metrics
+- System health monitoring
+
+## Security Considerations
+
+### Private Key Management
+- Aggregator private key controls all operations
+- Hardware security module (HSM) recommended for production
+- Key rotation procedures documented
+
+### Smart Contract Security
+- All contracts are audited implementations
+- Multi-signature controls for critical functions
+- Emergency pause mechanisms available
+
+### Data Protection
+- Recipient information encrypted at rest
+- PII handling compliant with regulations
+- Secure communication channels required
+
+## Performance Optimization
+
+### Database Optimization
+- Indexed queries for order lookups
+- Connection pooling for high throughput
+- Read replicas for analytics queries
+
+### Blockchain Optimization
+- Batch processing for multiple orders
+- Gas price optimization strategies
+- RPC endpoint failover mechanisms
+
+## Deployment Considerations
+
+### Infrastructure Requirements
+- PostgreSQL database with replication
+- Redis for caching and sessions
+- Load balancers for API endpoints
+- Monitoring and alerting systems
+
+### Scaling Strategies
+- Horizontal scaling of API services
+- Database sharding by network/region
+- Separate indexing services per blockchain
+
+This documentation provides a complete technical overview of the order lifecycle in the NEDA aggregator system. Each phase involves multiple components working together to provide a seamless payment processing experience while maintaining security, reliability, and scalability.

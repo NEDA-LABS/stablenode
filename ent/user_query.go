@@ -13,12 +13,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/kybprofile"
-	"github.com/paycrest/aggregator/ent/predicate"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/ent/senderprofile"
-	"github.com/paycrest/aggregator/ent/user"
-	"github.com/paycrest/aggregator/ent/verificationtoken"
+	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
+	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
 )
 
 // UserQuery is the builder for querying User entities.

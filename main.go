@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/routers"
-	"github.com/paycrest/aggregator/services"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/tasks"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/routers"
+	"github.com/NEDA-LABS/stablenode/services"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/tasks"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 func main() {

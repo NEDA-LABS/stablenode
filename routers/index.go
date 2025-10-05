@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/paycrest/aggregator/controllers"
-	"github.com/paycrest/aggregator/controllers/accounts"
-	"github.com/paycrest/aggregator/controllers/provider"
-	"github.com/paycrest/aggregator/controllers/sender"
-	"github.com/paycrest/aggregator/routers/middleware"
-	u "github.com/paycrest/aggregator/utils"
+	"github.com/NEDA-LABS/stablenode/controllers"
+	"github.com/NEDA-LABS/stablenode/controllers/accounts"
+	"github.com/NEDA-LABS/stablenode/controllers/provider"
+	"github.com/NEDA-LABS/stablenode/controllers/sender"
+	"github.com/NEDA-LABS/stablenode/routers/middleware"
+	u "github.com/NEDA-LABS/stablenode/utils"
 )
 
 // RegisterRoutes add all routing list here automatically get main router

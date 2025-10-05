@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/ent/fiatcurrency"
-	"github.com/paycrest/aggregator/ent/providercurrencies"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
+	"github.com/NEDA-LABS/stablenode/ent/providercurrencies"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 	"github.com/shopspring/decimal"
 )
 

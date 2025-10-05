@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/types"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/types"
 )
 
 // EmailProvider defines the interface for email providers

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/user"
-	"github.com/paycrest/aggregator/ent/verificationtoken"
+	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
 )
 
 // VerificationToken is the model entity for the VerificationToken schema.

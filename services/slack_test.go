@@ -8,9 +8,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jarcoal/httpmock"
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/utils"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/utils"
 	"github.com/stretchr/testify/assert"
 )
 

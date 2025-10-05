@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/beneficialowner"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // BeneficialOwnerDelete is the builder for deleting a BeneficialOwner entity.

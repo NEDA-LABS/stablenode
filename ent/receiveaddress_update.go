@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/paymentorder"
-	"github.com/paycrest/aggregator/ent/predicate"
-	"github.com/paycrest/aggregator/ent/receiveaddress"
+	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/receiveaddress"
 )
 
 // ReceiveAddressUpdate is the builder for updating ReceiveAddress entities.

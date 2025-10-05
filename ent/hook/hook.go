@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paycrest/aggregator/ent"
+	"github.com/NEDA-LABS/stablenode/ent"
 )
 
 // The APIKeyFunc type is an adapter to allow the use of ordinary

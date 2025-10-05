@@ -12,13 +12,13 @@ import (
 	"time"
 
 	fastshot "github.com/opus-domini/fast-shot"
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/ent/identityverificationrequest"
-	kycErrors "github.com/paycrest/aggregator/services/kyc/errors"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/identityverificationrequest"
+	kycErrors "github.com/NEDA-LABS/stablenode/services/kyc/errors"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils"
 )
 
 //go:embed id_types.json

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/paycrest/aggregator/config"
+	"github.com/NEDA-LABS/stablenode/config"
 	"github.com/stretchr/testify/assert"
 )
 

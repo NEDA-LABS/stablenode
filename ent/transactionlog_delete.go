@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/predicate"
-	"github.com/paycrest/aggregator/ent/transactionlog"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/transactionlog"
 )
 
 // TransactionLogDelete is the builder for deleting a TransactionLog entity.

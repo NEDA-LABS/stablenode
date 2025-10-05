@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/beneficialowner"
-	"github.com/paycrest/aggregator/ent/kybprofile"
-	"github.com/paycrest/aggregator/ent/predicate"
-	"github.com/paycrest/aggregator/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
+	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/user"
 )
 
 // KYBProfileUpdate is the builder for updating KYBProfile entities.

@@ -12,12 +12,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/lockpaymentorder"
-	"github.com/paycrest/aggregator/ent/network"
-	"github.com/paycrest/aggregator/ent/paymentorder"
-	"github.com/paycrest/aggregator/ent/providerordertoken"
-	"github.com/paycrest/aggregator/ent/senderordertoken"
-	"github.com/paycrest/aggregator/ent/token"
+	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/network"
+	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/providerordertoken"
+	"github.com/NEDA-LABS/stablenode/ent/senderordertoken"
+	"github.com/NEDA-LABS/stablenode/ent/token"
 )
 
 // TokenCreate is the builder for creating a Token entity.

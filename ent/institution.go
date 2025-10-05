@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/fiatcurrency"
-	"github.com/paycrest/aggregator/ent/institution"
+	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
+	"github.com/NEDA-LABS/stablenode/ent/institution"
 )
 
 // Institution is the model entity for the Institution schema.

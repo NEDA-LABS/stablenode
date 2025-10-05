@@ -8,10 +8,10 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/ent/migrate"
-	_ "github.com/paycrest/aggregator/ent/runtime" // ent runtime
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/migrate"
+	_ "github.com/NEDA-LABS/stablenode/ent/runtime" // ent runtime
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )

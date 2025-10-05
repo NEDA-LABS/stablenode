@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/paycrest/aggregator/ent/network"
-	"github.com/paycrest/aggregator/ent/token"
+	"github.com/NEDA-LABS/stablenode/ent/network"
+	"github.com/NEDA-LABS/stablenode/ent/token"
 )
 
 // Token is the model entity for the Token schema.

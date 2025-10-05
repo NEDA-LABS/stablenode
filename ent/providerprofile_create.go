@@ -13,14 +13,14 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/apikey"
-	"github.com/paycrest/aggregator/ent/lockpaymentorder"
-	"github.com/paycrest/aggregator/ent/providercurrencies"
-	"github.com/paycrest/aggregator/ent/providerordertoken"
-	"github.com/paycrest/aggregator/ent/providerprofile"
-	"github.com/paycrest/aggregator/ent/providerrating"
-	"github.com/paycrest/aggregator/ent/provisionbucket"
-	"github.com/paycrest/aggregator/ent/user"
+	"github.com/NEDA-LABS/stablenode/ent/apikey"
+	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
+	"github.com/NEDA-LABS/stablenode/ent/providercurrencies"
+	"github.com/NEDA-LABS/stablenode/ent/providerordertoken"
+	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
+	"github.com/NEDA-LABS/stablenode/ent/providerrating"
+	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
+	"github.com/NEDA-LABS/stablenode/ent/user"
 )
 
 // ProviderProfileCreate is the builder for creating a ProviderProfile entity.

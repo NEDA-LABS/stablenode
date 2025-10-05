@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent"
+	"github.com/NEDA-LABS/stablenode/ent"
 	"github.com/stretchr/testify/mock"
 )
 

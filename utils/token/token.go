@@ -12,7 +12,7 @@ import (
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
-	"github.com/paycrest/aggregator/config"
+	"github.com/NEDA-LABS/stablenode/config"
 )
 
 var conf = config.AuthConfig()

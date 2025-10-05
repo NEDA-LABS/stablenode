@@ -10,14 +10,14 @@ import (
 	"time"
 
 	fastshot "github.com/opus-domini/fast-shot"
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/services"
-	"github.com/paycrest/aggregator/services/common"
-	"github.com/paycrest/aggregator/services/contracts"
-	"github.com/paycrest/aggregator/services/order"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/services"
+	"github.com/NEDA-LABS/stablenode/services/common"
+	"github.com/NEDA-LABS/stablenode/services/contracts"
+	"github.com/NEDA-LABS/stablenode/services/order"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // IndexerTron performs blockchain to database extract, transform, load (ETL) operations.

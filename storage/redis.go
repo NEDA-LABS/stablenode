@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paycrest/aggregator/config"
+	"github.com/NEDA-LABS/stablenode/config"
 	"github.com/redis/go-redis/v9"
 )
 

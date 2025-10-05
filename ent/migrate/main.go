@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent"
 
 	atlas "ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"

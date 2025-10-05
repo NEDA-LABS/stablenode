@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/beneficialowner"
-	"github.com/paycrest/aggregator/ent/kybprofile"
+	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
+	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
 )
 
 // BeneficialOwner is the model entity for the BeneficialOwner schema.

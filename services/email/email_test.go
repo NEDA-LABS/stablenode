@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/types"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/types"
 	"github.com/stretchr/testify/assert"
 )
 

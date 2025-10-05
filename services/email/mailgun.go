@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	mailgunv3 "github.com/mailgun/mailgun-go/v3"
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // MailgunProvider implements EmailProvider for Mailgun

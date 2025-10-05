@@ -3,7 +3,7 @@ package email
 import (
 	"context"
 
-	"github.com/paycrest/aggregator/types"
+	"github.com/NEDA-LABS/stablenode/types"
 )
 
 // EmailServiceInterface provides the interface for the email service

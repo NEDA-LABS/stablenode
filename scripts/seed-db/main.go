@@ -7,14 +7,14 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/ent/fiatcurrency"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils/crypto"
-	"github.com/paycrest/aggregator/utils/logger"
-	"github.com/paycrest/aggregator/utils/token"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils/crypto"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
+	"github.com/NEDA-LABS/stablenode/utils/token"
 	"github.com/shopspring/decimal"
 )
 

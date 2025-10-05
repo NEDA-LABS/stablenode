@@ -11,10 +11,10 @@ import (
 	"time"
 
 	fastshot "github.com/opus-domini/fast-shot"
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/storage"
-	"github.com/paycrest/aggregator/utils"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/utils"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // ErrorType represents different types of errors for smart handling

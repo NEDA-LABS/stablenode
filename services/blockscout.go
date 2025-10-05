@@ -6,7 +6,7 @@ import (
 	"time"
 
 	fastshot "github.com/opus-domini/fast-shot"
-	"github.com/paycrest/aggregator/utils"
+	"github.com/NEDA-LABS/stablenode/utils"
 )
 
 // BlockscoutService provides functionality for interacting with Blockscout API

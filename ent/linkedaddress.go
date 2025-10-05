@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/paycrest/aggregator/ent/linkedaddress"
+	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 )
 
 // LinkedAddress is the model entity for the LinkedAddress schema.

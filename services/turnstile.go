@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // TurnstileService handles Cloudflare Turnstile token validation

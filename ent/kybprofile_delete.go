@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/kybprofile"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // KYBProfileDelete is the builder for deleting a KYBProfile entity.

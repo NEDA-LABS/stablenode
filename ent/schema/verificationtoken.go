@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	gen "github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/ent/hook"
+	gen "github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/hook"
 	"golang.org/x/crypto/bcrypt"
 )
 

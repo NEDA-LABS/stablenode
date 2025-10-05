@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/paycrest/aggregator/ent"
-	"github.com/paycrest/aggregator/utils"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/utils"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 type SlackService struct {

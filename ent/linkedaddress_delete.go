@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/paycrest/aggregator/ent/linkedaddress"
-	"github.com/paycrest/aggregator/ent/predicate"
+	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
+	"github.com/NEDA-LABS/stablenode/ent/predicate"
 )
 
 // LinkedAddressDelete is the builder for deleting a LinkedAddress entity.

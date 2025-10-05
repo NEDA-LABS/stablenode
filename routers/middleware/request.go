@@ -7,8 +7,8 @@ import (
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
 	"github.com/gin-gonic/gin"
-	"github.com/paycrest/aggregator/config"
-	u "github.com/paycrest/aggregator/utils"
+	"github.com/NEDA-LABS/stablenode/config"
+	u "github.com/NEDA-LABS/stablenode/utils"
 )
 
 var (

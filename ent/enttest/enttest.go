@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/paycrest/aggregator/ent"
+	"github.com/NEDA-LABS/stablenode/ent"
 	// required by schema hooks.
-	_ "github.com/paycrest/aggregator/ent/runtime"
+	_ "github.com/NEDA-LABS/stablenode/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/paycrest/aggregator/ent/migrate"
+	"github.com/NEDA-LABS/stablenode/ent/migrate"
 )
 
 type (

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/paycrest/aggregator/config"
-	"github.com/paycrest/aggregator/types"
-	"github.com/paycrest/aggregator/utils/logger"
+	"github.com/NEDA-LABS/stablenode/config"
+	"github.com/NEDA-LABS/stablenode/types"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // EmailService provides functionality for sending emails with provider abstraction and fallback support
