@@ -1,5 +1,7 @@
 # NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation ---oct 5, 2025
 
+**for development setup check readme.md**
+
 ## Overview
 
 This document provides a comprehensive technical overview of the order lifecycle in the NEDA aggregator system, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration.
