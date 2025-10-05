@@ -1,10 +1,11 @@
-# NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation ---oct 5, 2025
+# NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation by team NEDA ---oct 5, 2025 
 
-**for development setup check readme.md**
+
+**for development setup check (`readme.md`)**
 
 ## Overview
 
-This document provides a comprehensive technical overview of the order lifecycle in the NEDA aggregator system, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration.
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode"aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration.
 
 ## Architecture Components
 
@@ -357,6 +358,82 @@ Each supported blockchain network requires:
 - Gateway contract address
 - Supported token contracts
 - Gas price and fee settings
+
+## Gateway Contract Deployment Strategy
+
+### **🏗️ Pre-Deployed Contract Approach**
+
+The Gateway contracts are **already deployed** on each supported network and their addresses are stored in the database. The system uses pre-deployed contracts rather than deploying them during runtime.
+
+#### **Current Deployed Gateway Contracts:**
+```sql
+-- From scripts/db_data/dump.sql
+INSERT INTO "public"."networks" (..., "gateway_contract_address", ...) VALUES
+-- Ethereum Sepolia Testnet
+('0xCAD53Ff499155Cc2fAA2082A85716322906886c2'),
+-- Arbitrum Sepolia Testnet  
+('0x87B321fc77A0fDD0ca1fEe7Ab791131157B9841A'),
+-- Tron Shasta Testnet
+('TYA8urq7nkN2yU7rJqAgwDShCusDZrrsxZ')
+```
+
+### **📋 How Gateway Addresses Are Managed**
+
+#### **1. Database Storage**
+Each network entity stores its Gateway contract address:
+```go
+type Network struct {
+    ChainID                int64
+    Identifier            string
+    RPCEndpoint           string
+    GatewayContractAddress string  // Pre-deployed contract address
+    BundlerURL            string
+    PaymasterURL          string
+}
+```
+
+#### **2. Runtime Usage**
+Orders are created using the pre-deployed Gateway address from the database:
+```go
+func (s *OrderEVM) CreateOrder(order *ent.PaymentOrder) error {
+    gatewayAddress := order.Edges.Token.Edges.Network.GatewayContractAddress
+    // Calls createOrder() on the existing contract
+}
+```
+
+### **🚀 Deployment Process (Done Separately)**
+
+The Gateway contracts are deployed **outside** of the aggregator application:
+
+1. **Contract Deployment** - Gateway contracts deployed manually/via scripts per network
+2. **Database Configuration** - Contract addresses added to database via `scripts/db_data/dump.sql`
+3. **Code Generation** - Go bindings generated in `services/contracts/Gateway.go`
+
+### **⚙️ Why This Approach?**
+
+**Advantages:**
+- **Stability**: Contract addresses don't change between deployments
+- **Gas Efficiency**: No deployment costs during runtime
+- **Security**: Contracts can be audited and verified before use
+- **Multi-Network**: Each network has its optimized Gateway instance
+- **Upgradability**: Can deploy new versions and update database references
+
+### **🔄 Adding New Networks**
+
+To support a new blockchain network:
+1. **Deploy Gateway Contract** on the new network
+2. **Update Database** with new network record including gateway address
+3. **Configure RPC/Bundler** endpoints for the network
+4. **Test Integration** with the aggregator
+
+**Related Files:**
+```
+services/contracts/Gateway.go     # Generated contract bindings
+services/order/evm.go            # EVM Gateway interactions  
+services/order/tron.go           # Tron Gateway interactions
+scripts/db_data/dump.sql         # Network/Gateway configuration
+ent/network/                     # Database schema for networks
+```
 
 ## Error Handling and Recovery
 
