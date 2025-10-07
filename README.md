@@ -3,17 +3,137 @@
 
 **for development setup check (`readme.md`)**
 
+## Order Lifecycle Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         COMPLETE ORDER LIFECYCLE                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. USER CREATES ORDER (via API)
+   │
+   ├─→ Aggregator validates request
+   ├─→ Creates PaymentOrder in database (status: order_initiated)
+   │
+   ↓
+2. AGGREGATOR GENERATES RECEIVE ADDRESS
+   │
+   ├─→ EVM Chains: Calls Thirdweb Engine API
+   │   └─→ Engine creates ERC-4337 smart account: 0xRECEIVE_ADDRESS_123
+   │
+   ├─→ Tron: Generates address from HD wallet
+   │   └─→ Creates Tron address: TReceiveAddress123
+   │
+   ├─→ Stores ReceiveAddress in database
+   └─→ Returns address to user
+   │
+   ↓
+3. USER SENDS CRYPTO
+   │
+   └─→ User transfers tokens to: 0xRECEIVE_ADDRESS_123
+   │
+   ↓
+4. AGGREGATOR DETECTS DEPOSIT (via Thirdweb Webhooks)
+   │
+   ├─→ Webhook receives Transfer event
+   ├─→ Validates: correct token, amount, receive address
+   ├─→ Updates order status: crypto_deposited
+   │
+   ↓
+5. AGGREGATOR CREATES ORDER ON GATEWAY CONTRACT
+   │
+   ├─→ Prepares transaction:
+   │   • FROM: AGGREGATOR_SMART_ACCOUNT (0x03Ff...)
+   │   • TO: Gateway Contract
+   │   • FUNCTION: createOrder(token, amount, rate, recipient, refundAddress)
+   │
+   ├─→ Sends via Thirdweb Engine:
+   │   • Engine signs with AGGREGATOR_PRIVATE_KEY
+   │   • Transfers funds: 0xRECEIVE_ADDRESS_123 → Gateway Contract
+   │
+   ├─→ Gateway Contract emits: OrderCreated event
+   └─→ Updates database: order_created, records gateway_id
+   │
+   ↓
+6. PROVIDER MATCHING
+   │
+   ├─→ Creates LockPaymentOrder (status: pending)
+   ├─→ Notifies available providers
+   └─→ Provider claims order
+   │
+   ↓
+7. PROVIDER FULFILLS ORDER (Off-chain)
+   │
+   ├─→ Provider sends fiat to recipient
+   ├─→ Provider submits proof of payment
+   └─→ Aggregator validates fulfillment
+   │
+   ↓
+8. AGGREGATOR SETTLES ORDER ON GATEWAY CONTRACT
+   │
+   ├─→ Prepares transaction:
+   │   • FROM: AGGREGATOR_SMART_ACCOUNT (0x03Ff...)
+   │   • TO: Gateway Contract
+   │   • FUNCTION: settle(orderId, provider, settlePercent)
+   │
+   ├─→ Sends via Thirdweb Engine:
+   │   • Engine signs with AGGREGATOR_PRIVATE_KEY
+   │
+   ├─→ Gateway Contract:
+   │   • Releases funds to provider
+   │   • Deducts protocol fees
+   │   • Emits: OrderSettled event
+   │
+   └─→ Updates database: order_fulfilled
+   │
+   ↓
+9. ORDER COMPLETE ✓
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ALTERNATIVE: REFUND PATH                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+REFUND TRIGGERS:
+• Order timeout (no provider claims within ORDER_REFUND_TIMEOUT)
+• Provider cancellation (exceeds REFUND_CANCELLATION_COUNT)
+• Manual admin refund
+│
+↓
+AGGREGATOR REFUNDS ORDER
+│
+├─→ Prepares transaction:
+│   • FROM: AGGREGATOR_SMART_ACCOUNT (0x03Ff...)
+│   • TO: Gateway Contract
+│   • FUNCTION: refund(fee, orderId)
+│
+├─→ Sends via Thirdweb Engine
+│
+├─→ Gateway Contract:
+│   • Returns funds to user's refundAddress
+│   • Emits: OrderRefunded event
+│
+└─→ Updates database: order_refunded
+
+```
+
 ## Overview
 
-This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode"aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration.
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration and Thirdweb Engine for wallet management.
 
 ## Architecture Components
 
 ### Core Services
 - **Order Service**: Handles order creation and smart contract interactions (`services/order/`)
 - **Indexer Service**: Monitors blockchain events and updates database state (`services/indexer/`)
-- **Engine Service**: Manages RPC connections and blockchain interactions (`services/engine.go`)
+- **Engine Service**: Manages wallet operations and blockchain transactions via Thirdweb Engine API (`services/engine.go`)
+- **Receive Address Service**: Generates temporary deposit addresses for orders (`services/receive_address.go`)
 - **Priority Queue Service**: Manages order processing queues (`services/priority_queue.go`)
+
+### Thirdweb Engine Integration
+- **Wallet Management**: Creates and manages ERC-4337 smart accounts for receive addresses
+- **Transaction Signing**: Signs all transactions using stored private keys
+- **Webhook System**: Monitors blockchain events (Transfer, OrderCreated, OrderSettled, OrderRefunded)
+- **Key Storage**: Securely stores `AGGREGATOR_PRIVATE_KEY` and receive address keys
 
 ### Database Layer
 - **Ent ORM**: Database schema and operations (`ent/`)
@@ -52,11 +172,17 @@ func (ctrl *Controller) CreateOrder(ctx *gin.Context) {
 **File**: `services/receive_address.go`
 
 ```go
-// Generates unique receive addresses for orders
-func GenerateReceiveAddress(order *ent.PaymentOrder) (string, error) {
-    // Uses HD wallet derivation
-    // Creates time-limited receive address
-    // Links to payment order
+// For EVM chains: Creates ERC-4337 smart accounts via Thirdweb Engine
+func (s *ReceiveAddressService) CreateSmartAddress(ctx context.Context, label string) (string, error) {
+    return s.engineService.CreateServerWallet(ctx, label)
+    // Calls Thirdweb Engine API to create a new smart account
+    // Engine manages the private keys for these accounts
+}
+
+// For Tron network: Generates addresses from wallet
+func (s *ReceiveAddressService) CreateTronAddress(ctx context.Context) (string, []byte, error) {
+    wallet := tronWallet.GenerateTronWallet(nodeUrl)
+    // Generates new Tron address with encrypted private key
 }
 ```
 
@@ -64,6 +190,7 @@ func GenerateReceiveAddress(order *ent.PaymentOrder) (string, error) {
 - Creates `ReceiveAddress` entity
 - Sets expiration time based on `RECEIVE_ADDRESS_VALIDITY`
 - Links to payment order
+- Stores encrypted private key (Tron only)
 
 ### Phase 2: Crypto Deposit Detection
 
@@ -124,24 +251,25 @@ func (s *OrderEVM) CreateOrder(order *ent.PaymentOrder) error {
 - Passes encrypted recipient data
 - Uses ERC-4337 UserOperation for gas-less execution
 
-#### 3.2 Account Abstraction Integration
-**File**: `utils/userop.go`
+#### 3.2 Transaction Execution via Thirdweb Engine
+**File**: `services/engine.go`
 
 ```go
-// Creates and submits UserOperations
-func CreateUserOperation(order *ent.PaymentOrder) (*userop.UserOperation, error) {
-    // Builds UserOperation structure
-    // Signs with aggregator private key
-    // Submits to bundler service (Biconomy/Alchemy)
+// Sends transactions via Thirdweb Engine
+func (s *EngineService) SendTransactionBatch(ctx context.Context, chainID int64, address string, txPayload []map[string]interface{}) (queueID string, err error) {
+    // Calls Thirdweb Engine API
+    // Engine signs transaction with AGGREGATOR_PRIVATE_KEY
+    // Returns queue ID for tracking
 }
 ```
 
 **Process Flow**:
-1. Creates UserOperation with order data
-2. Signs with `AGGREGATOR_PRIVATE_KEY`
-3. Submits to AA bundler service
-4. Bundler includes in batch transaction
-5. EntryPoint contract validates and executes
+1. Aggregator prepares transaction payload (createOrder call data)
+2. Sends to Thirdweb Engine via `SendTransactionBatch`
+3. Engine signs with `AGGREGATOR_PRIVATE_KEY` (stored in Engine vault)
+4. Engine submits transaction to blockchain
+5. Transaction transfers funds from receive address to Gateway contract
+6. Gateway contract validates and executes order creation
 
 #### 3.3 Gateway Contract Execution
 **File**: `services/contracts/Gateway.go`
@@ -338,19 +466,54 @@ utils/
 
 ### Key Environment Variables
 ```bash
-# Smart Contract Addresses
-ENTRY_POINT_CONTRACT_ADDRESS=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+# ============================================
+# THIRDWEB ENGINE - Wallet Management
+# ============================================
+ENGINE_BASE_URL=https://your-engine-instance.com
+ENGINE_ACCESS_TOKEN=your-vault-access-token
+THIRDWEB_SECRET_KEY=your-thirdweb-secret-key
+
+# ============================================
+# AGGREGATOR ACCOUNT - Operational Wallet
+# ============================================
+# The main smart account that executes all order operations
 AGGREGATOR_SMART_ACCOUNT=0x03Ff9504c7067980c1637BF9400E7b7e3655782c
 
-# Order Configuration
+# Keys controlling the aggregator account (stored in Thirdweb Engine vault)
+AGGREGATOR_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+AGGREGATOR_PUBLIC_KEY="-----BEGIN RSA PUBLIC KEY-----..."
+
+# ============================================
+# SMART CONTRACT ADDRESSES
+# ============================================
+ENTRY_POINT_CONTRACT_ADDRESS=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+
+# ============================================
+# ORDER CONFIGURATION
+# ============================================
 ORDER_FULFILLMENT_VALIDITY=1    # minutes
 ORDER_REFUND_TIMEOUT=5          # minutes
 RECEIVE_ADDRESS_VALIDITY=30     # minutes
+REFUND_CANCELLATION_COUNT=3     # max provider cancellations before refund
 
-# Account Abstraction
-AGGREGATOR_PRIVATE_KEY="..."    # Signs UserOperations
-AGGREGATOR_PUBLIC_KEY="..."     # Verification key
+# ============================================
+# HD WALLET - Tron & Tests Only
+# ============================================
+HD_WALLET_MNEMONIC="twelve word mnemonic phrase..."
 ```
+
+### Thirdweb Engine Setup
+The aggregator requires a Thirdweb Engine instance for:
+1. **Wallet Creation**: Generates ERC-4337 smart accounts for receive addresses
+2. **Transaction Execution**: Signs and submits transactions using stored keys
+3. **Event Monitoring**: Webhooks for Transfer, OrderCreated, OrderSettled, OrderRefunded events
+4. **Key Management**: Securely stores and manages private keys
+
+**Setup Steps:**
+1. Deploy Thirdweb Engine instance (self-hosted or cloud)
+2. Configure `ENGINE_BASE_URL` and `ENGINE_ACCESS_TOKEN`
+3. Import `AGGREGATOR_PRIVATE_KEY` into Engine vault
+4. Set up webhooks for supported networks
 
 ### Network Configuration
 Each supported blockchain network requires:
@@ -358,6 +521,7 @@ Each supported blockchain network requires:
 - Gateway contract address
 - Supported token contracts
 - Gas price and fee settings
+- Thirdweb Engine webhook configuration
 
 ## Gateway Contract Deployment Strategy
 
@@ -500,5 +664,59 @@ ent/network/                     # Database schema for networks
 - Horizontal scaling of API services
 - Database sharding by network/region
 - Separate indexing services per blockchain
+- Thirdweb Engine horizontal scaling for high transaction volume
 
-This documentation provides a complete technical overview of the order lifecycle in the NEDA aggregator system. Each phase involves multiple components working together to provide a seamless payment processing experience while maintaining security, reliability, and scalability.
+## Key Architectural Points
+
+### Wallet Architecture
+The system uses **three distinct wallet types**:
+
+1. **Receive Addresses** (Temporary, Many)
+   - Created via Thirdweb Engine for each order
+   - ERC-4337 smart accounts (EVM chains)
+   - Generated wallets (Tron network)
+   - Keys managed by Thirdweb Engine
+   - Purpose: Receive user deposits
+
+2. **Aggregator Smart Account** (Permanent, One)
+   - Your operational identity: `AGGREGATOR_SMART_ACCOUNT`
+   - Controlled by `AGGREGATOR_PRIVATE_KEY`
+   - Executes all business logic transactions
+   - Purpose: Create, settle, and refund orders
+
+3. **Gateway Contract** (Escrow)
+   - Pre-deployed on each network
+   - Holds funds during order processing
+   - Releases funds on settlement or refund
+
+### Transaction Flow
+```
+User Deposit → Receive Address (Engine-managed)
+             ↓
+Aggregator detects deposit (Webhook)
+             ↓
+Aggregator creates order → Gateway Contract (via Engine)
+             ↓
+Funds: Receive Address → Gateway Contract
+             ↓
+Provider fulfills order
+             ↓
+Aggregator settles → Gateway releases funds to Provider
+```
+
+### Thirdweb Engine Role
+- **Central wallet infrastructure provider**
+- Manages all wallet creation and transaction signing
+- Stores `AGGREGATOR_PRIVATE_KEY` securely in vault
+- Provides webhook system for event monitoring
+- Handles gas management and transaction retries
+
+### Security Model
+- **Separation of Concerns**: Receive addresses isolated from operational account
+- **Key Management**: All private keys stored in Thirdweb Engine vault
+- **Transaction Control**: Only `AGGREGATOR_SMART_ACCOUNT` can execute order operations
+- **Escrow Protection**: User funds held in Gateway contract until settlement/refund
+
+---
+
+This documentation provides a complete technical overview of the order lifecycle in the NEDA aggregator system. Each phase involves multiple components working together to provide a seamless payment processing experience while maintaining security, reliability, and scalability through Thirdweb Engine integration.

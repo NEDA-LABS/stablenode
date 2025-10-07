@@ -35,3 +35,6 @@ __debug*
 
 #cached
 tmp/
+
+#provision-node
+provision-node/
