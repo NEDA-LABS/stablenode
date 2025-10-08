@@ -1,7 +1,7 @@
-# NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation by team NEDA ---oct 5, 2025 
+# NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation ---oct 5, 2025 
 
 
-**for development setup check (`readme.md`)**
+**for development setup check [readme.md](https://github.com/NEDA-LABS/stablenode/edit/main/readme.md)**
 
 ## Overview
 
