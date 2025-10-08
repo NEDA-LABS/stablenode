@@ -3,6 +3,10 @@
 
 **for development setup check (`readme.md`)**
 
+## Overview
+
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated EVM payment processing pipeline with ERC-4337 Account Abstraction integration and support for multiple blockchain service providers (Alchemy recommended, Thirdweb Engine legacy) for wallet management.
+
 ## Order Lifecycle Diagram
 
 ```
@@ -18,12 +22,8 @@
    ↓
 2. AGGREGATOR GENERATES RECEIVE ADDRESS
    │
-   ├─→ EVM Chains: Calls Blockchain Service Provider (Alchemy or Thirdweb)
-   │   └─→ Creates ERC-4337 smart account: 0xRECEIVE_ADDRESS_123
-   │
-   ├─→ Tron: Generates address from HD wallet
-   │   └─→ Creates Tron address: TReceiveAddress123
-   │
+   ├─→ Calls Blockchain Service Provider (Alchemy recommended, Thirdweb legacy)
+   ├─→ Creates ERC-4337 smart account: 0xRECEIVE_ADDRESS_123
    ├─→ Stores ReceiveAddress in database
    └─→ Returns address to user
    │
@@ -300,9 +300,9 @@ CLIENT                  API                 DATABASE            ALCHEMY/THIRDWEB
 
 ---
 
-## Overview
 
-This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration and support for multiple blockchain service providers (Alchemy and Thirdweb Engine) for wallet management.
+
+**Note**: The system currently focuses exclusively on EVM-compatible chains (Ethereum, Base, Arbitrum, Polygon, etc.). Tron support has been removed.
 
 ## Architecture Components
 
@@ -368,17 +368,16 @@ func (ctrl *Controller) CreateOrder(ctx *gin.Context) {
 **File**: `services/receive_address.go`
 
 ```go
-// For EVM chains: Creates ERC-4337 smart accounts via Thirdweb Engine
+// Creates ERC-4337 smart accounts via Alchemy or Thirdweb
 func (s *ReceiveAddressService) CreateSmartAddress(ctx context.Context, label string) (string, error) {
+    // If USE_ALCHEMY_FOR_RECEIVE_ADDRESSES=true
+    if useAlchemy {
+        return s.alchemyService.CreateSmartAccount(ctx, owner, chainID, salt)
+        // Generates deterministic CREATE2 address with unique salt
+    }
+    // Legacy: Thirdweb Engine
     return s.engineService.CreateServerWallet(ctx, label)
     // Calls Thirdweb Engine API to create a new smart account
-    // Engine manages the private keys for these accounts
-}
-
-// For Tron network: Generates addresses from wallet
-func (s *ReceiveAddressService) CreateTronAddress(ctx context.Context) (string, []byte, error) {
-    wallet := tronWallet.GenerateTronWallet(nodeUrl)
-    // Generates new Tron address with encrypted private key
 }
 ```
 
@@ -386,19 +385,16 @@ func (s *ReceiveAddressService) CreateTronAddress(ctx context.Context) (string, 
 - Creates `ReceiveAddress` entity
 - Sets expiration time based on `RECEIVE_ADDRESS_VALIDITY`
 - Links to payment order
-- Stores encrypted private key (Tron only)
 
 ### Phase 2: Crypto Deposit Detection
 
 #### 2.1 Blockchain Monitoring
-**Files**: 
-- `services/indexer/evm.go` - Ethereum-based chains
-- `services/indexer/tron.go` - Tron network
+**File**: `services/indexer/evm.go`
 
 ```go
-// Monitors blockchain for incoming transfers
+// Monitors blockchain for incoming transfers on EVM chains
 func (s *IndexerEVM) IndexReceiveAddress(ctx context.Context, token *ent.Token, address string, fromBlock int64, toBlock int64, txHash string) (*types.EventCounts, error) {
-    // Scans for Transfer events to receive address
+    // Scans for ERC-20 Transfer events to receive address
     // Validates transfer amount and token
     // Triggers order processing
 }
@@ -429,16 +425,14 @@ func (ctrl *Controller) handleTransferEvent(ctx *gin.Context, event types.Thirdw
 ### Phase 3: Smart Contract Order Creation
 
 #### 3.1 Order Preparation
-**Files**:
-- `services/order/evm.go` - Ethereum chains
-- `services/order/tron.go` - Tron network
+**File**: `services/order/evm.go`
 
 ```go
-// Prepares order for blockchain submission
+// Prepares order for blockchain submission on EVM chains
 func (s *OrderEVM) CreateOrder(order *ent.PaymentOrder) error {
     // Encrypts recipient details
     // Prepares smart contract call data
-    // Submits via Account Abstraction
+    // Submits via Account Abstraction (ERC-4337)
 }
 ```
 
@@ -447,24 +441,33 @@ func (s *OrderEVM) CreateOrder(order *ent.PaymentOrder) error {
 - Passes encrypted recipient data
 - Uses ERC-4337 UserOperation for gas-less execution
 
-#### 3.2 Transaction Execution via Thirdweb Engine
-**File**: `services/engine.go`
+#### 3.2 Transaction Execution via Blockchain Service Provider
+**Files**: 
+- `services/alchemy.go` - Alchemy service (recommended)
+- `services/engine.go` - Thirdweb Engine (legacy)
 
 ```go
-// Sends transactions via Thirdweb Engine
+// Alchemy: Direct transaction signing
+func (s *AlchemyService) SendUserOperation(ctx context.Context, userOp UserOperation) (string, error) {
+    // Signs with self-managed AGGREGATOR_PRIVATE_KEY
+    // Submits via Alchemy Account Abstraction API
+    // Returns operation hash for tracking
+}
+
+// Thirdweb Engine: Vault-managed signing
 func (s *EngineService) SendTransactionBatch(ctx context.Context, chainID int64, address string, txPayload []map[string]interface{}) (queueID string, err error) {
     // Calls Thirdweb Engine API
-    // Engine signs transaction with AGGREGATOR_PRIVATE_KEY
+    // Engine signs transaction with AGGREGATOR_PRIVATE_KEY (stored in vault)
     // Returns queue ID for tracking
 }
 ```
 
 **Process Flow**:
 1. Aggregator prepares transaction payload (createOrder call data)
-2. Sends to Thirdweb Engine via `SendTransactionBatch`
-3. Engine signs with `AGGREGATOR_PRIVATE_KEY` (stored in Engine vault)
-4. Engine submits transaction to blockchain
-5. Transaction transfers funds from receive address to Gateway contract
+2. Routes to appropriate service (Alchemy or Thirdweb) via Service Manager
+3. Service signs with `AGGREGATOR_PRIVATE_KEY`
+4. Transaction submitted to blockchain
+5. Funds transferred: receive address → Gateway contract
 6. Gateway contract validates and executes order creation
 
 #### 3.3 Gateway Contract Execution
@@ -627,16 +630,17 @@ controllers/
 ```
 services/
 ├── order/
-│   ├── evm.go           # Ethereum-based order processing
-│   └── tron.go          # Tron network order processing
+│   └── evm.go           # EVM-based order processing
 ├── indexer/
-│   ├── evm.go           # Ethereum event indexing
-│   └── tron.go          # Tron event indexing
+│   └── evm.go           # EVM event indexing
 ├── common/
 │   ├── order.go         # Shared order logic
 │   └── indexer.go       # Shared indexing logic
 ├── contracts/           # Generated contract bindings
-├── engine.go            # RPC client management
+├── alchemy.go           # Alchemy service (recommended)
+├── engine.go            # Thirdweb Engine service (legacy)
+├── manager.go           # Service manager (routes between providers)
+├── receive_address.go   # Receive address generation
 └── priority_queue.go    # Order queue management
 ```
 
@@ -663,11 +667,24 @@ utils/
 ### Key Environment Variables
 ```bash
 # ============================================
-# THIRDWEB ENGINE - Wallet Management
+# ALCHEMY SERVICE (Recommended)
+# ============================================
+ALCHEMY_API_KEY=your_alchemy_api_key
+ALCHEMY_BASE_URL=https://api.g.alchemy.com/v2
+ALCHEMY_GAS_POLICY_ID=your_gas_policy_id  # Optional
+
+# ============================================
+# THIRDWEB ENGINE (Legacy)
 # ============================================
 ENGINE_BASE_URL=https://your-engine-instance.com
 ENGINE_ACCESS_TOKEN=your-vault-access-token
 THIRDWEB_SECRET_KEY=your-thirdweb-secret-key
+
+# ============================================
+# SERVICE SELECTION
+# ============================================
+USE_ALCHEMY_SERVICE=false  # Set to true to use Alchemy
+USE_ALCHEMY_FOR_RECEIVE_ADDRESSES=true  # Use Alchemy for receive addresses
 
 # ============================================
 # AGGREGATOR ACCOUNT - Operational Wallet
@@ -675,7 +692,7 @@ THIRDWEB_SECRET_KEY=your-thirdweb-secret-key
 # The main smart account that executes all order operations
 AGGREGATOR_SMART_ACCOUNT=0x03Ff9504c7067980c1637BF9400E7b7e3655782c
 
-# Keys controlling the aggregator account (stored in Thirdweb Engine vault)
+# Keys controlling the aggregator account
 AGGREGATOR_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 AGGREGATOR_PUBLIC_KEY="-----BEGIN RSA PUBLIC KEY-----..."
 
@@ -691,33 +708,41 @@ ORDER_FULFILLMENT_VALIDITY=1    # minutes
 ORDER_REFUND_TIMEOUT=5          # minutes
 RECEIVE_ADDRESS_VALIDITY=30     # minutes
 REFUND_CANCELLATION_COUNT=3     # max provider cancellations before refund
-
-# ============================================
-# HD WALLET - Tron & Tests Only
-# ============================================
-HD_WALLET_MNEMONIC="twelve word mnemonic phrase..."
 ```
 
-### Thirdweb Engine Setup
-The aggregator requires a Thirdweb Engine instance for:
-1. **Wallet Creation**: Generates ERC-4337 smart accounts for receive addresses
-2. **Transaction Execution**: Signs and submits transactions using stored keys
-3. **Event Monitoring**: Webhooks for Transfer, OrderCreated, OrderSettled, OrderRefunded events
-4. **Key Management**: Securely stores and manages private keys
+### Blockchain Service Provider Setup
 
-**Setup Steps:**
-1. Deploy Thirdweb Engine instance (self-hosted or cloud)
-2. Configure `ENGINE_BASE_URL` and `ENGINE_ACCESS_TOKEN`
-3. Import `AGGREGATOR_PRIVATE_KEY` into Engine vault
-4. Set up webhooks for supported networks
+#### Alchemy Setup (Recommended)
+1. **Create Alchemy Account**: Sign up at https://alchemy.com
+2. **Get API Key**: Create app and copy API key
+3. **Configure Environment**: Set `ALCHEMY_API_KEY` and `USE_ALCHEMY_FOR_RECEIVE_ADDRESSES=true`
+4. **Set Up Webhooks** (for payment detection):
+   - Go to Alchemy Dashboard → Notify
+   - Create Address Activity webhook
+   - Point to: `https://your-domain.com/v1/alchemy/webhook`
+5. **Optional Gas Manager**: Configure gas sponsorship policies
+
+**Advantages:**
+- Free tier sufficient for most use cases ($0-49/month)
+- Self-managed keys (no third-party vault)
+- Direct API access
+- Comprehensive documentation
+
+#### Thirdweb Engine Setup (Legacy)
+1. **Deploy Engine**: Self-hosted or cloud instance
+2. **Configure**: Set `ENGINE_BASE_URL` and `ENGINE_ACCESS_TOKEN`
+3. **Import Keys**: Add `AGGREGATOR_PRIVATE_KEY` to Engine vault
+4. **Webhooks**: Automatic via Thirdweb Insight
+
+**Note**: Thirdweb Engine costs $99-999/month. Migration to Alchemy recommended.
 
 ### Network Configuration
-Each supported blockchain network requires:
+Each supported EVM network requires:
 - RPC endpoint configuration
 - Gateway contract address
 - Supported token contracts
 - Gas price and fee settings
-- Thirdweb Engine webhook configuration
+- Webhook configuration (Alchemy Notify or Thirdweb Insight)
 
 ## Gateway Contract Deployment Strategy
 
@@ -725,7 +750,7 @@ Each supported blockchain network requires:
 
 The Gateway contracts are **already deployed** on each supported network and their addresses are stored in the database. The system uses pre-deployed contracts rather than deploying them during runtime.
 
-#### **Current Deployed Gateway Contracts:**
+#### **Current Deployed Gateway Contracts (EVM Testnets):**
 ```sql
 -- From scripts/db_data/dump.sql
 INSERT INTO "public"."networks" (..., "gateway_contract_address", ...) VALUES
@@ -733,8 +758,8 @@ INSERT INTO "public"."networks" (..., "gateway_contract_address", ...) VALUES
 ('0xCAD53Ff499155Cc2fAA2082A85716322906886c2'),
 -- Arbitrum Sepolia Testnet  
 ('0x87B321fc77A0fDD0ca1fEe7Ab791131157B9841A'),
--- Tron Shasta Testnet
-('TYA8urq7nkN2yU7rJqAgwDShCusDZrrsxZ')
+-- Base Sepolia Testnet
+('0x...')  -- Add your deployed contract address
 ```
 
 ### **📋 How Gateway Addresses Are Managed**
@@ -789,8 +814,7 @@ To support a new blockchain network:
 **Related Files:**
 ```
 services/contracts/Gateway.go     # Generated contract bindings
-services/order/evm.go            # EVM Gateway interactions  
-services/order/tron.go           # Tron Gateway interactions
+services/order/evm.go            # EVM Gateway interactions
 scripts/db_data/dump.sql         # Network/Gateway configuration
 ent/network/                     # Database schema for networks
 ```
@@ -860,18 +884,18 @@ ent/network/                     # Database schema for networks
 - Horizontal scaling of API services
 - Database sharding by network/region
 - Separate indexing services per blockchain
-- Thirdweb Engine horizontal scaling for high transaction volume
+- Service provider horizontal scaling (Alchemy or Thirdweb)
 
 ## Key Architectural Points
 
 ### Wallet Architecture
-The system uses **three distinct wallet types**:
+The system uses **three distinct wallet types** (EVM-only):
 
 1. **Receive Addresses** (Temporary, Many)
-   - Created via Thirdweb Engine for each order
-   - ERC-4337 smart accounts (EVM chains)
-   - Generated wallets (Tron network)
-   - Keys managed by Thirdweb Engine
+   - Created via Alchemy (recommended) or Thirdweb Engine for each order
+   - ERC-4337 smart accounts with deterministic CREATE2 deployment
+   - **Alchemy**: Self-managed keys, deterministic address generation
+   - **Thirdweb**: Keys managed by Engine vault
    - Purpose: Receive user deposits
 
 2. **Aggregator Smart Account** (Permanent, One)
@@ -881,17 +905,17 @@ The system uses **three distinct wallet types**:
    - Purpose: Create, settle, and refund orders
 
 3. **Gateway Contract** (Escrow)
-   - Pre-deployed on each network
+   - Pre-deployed on each EVM network
    - Holds funds during order processing
    - Releases funds on settlement or refund
 
 ### Transaction Flow
 ```
-User Deposit → Receive Address (Engine-managed)
+User Deposit → Receive Address (Alchemy/Thirdweb-managed)
              ↓
-Aggregator detects deposit (Webhook)
+Aggregator detects deposit (Webhook: Alchemy Notify or Thirdweb Insight)
              ↓
-Aggregator creates order → Gateway Contract (via Engine)
+Aggregator creates order → Gateway Contract (via Service Provider)
              ↓
 Funds: Receive Address → Gateway Contract
              ↓
@@ -900,19 +924,29 @@ Provider fulfills order
 Aggregator settles → Gateway releases funds to Provider
 ```
 
-### Thirdweb Engine Role
-- **Central wallet infrastructure provider**
-- Manages all wallet creation and transaction signing
-- Stores `AGGREGATOR_PRIVATE_KEY` securely in vault
-- Provides webhook system for event monitoring
-- Handles gas management and transaction retries
+### Blockchain Service Provider Role
+**Alchemy (Recommended)**:
+- Deterministic smart account creation via CREATE2
+- Direct transaction signing with self-managed keys
+- Alchemy Notify for webhook events
+- Gas Manager for sponsored transactions (optional)
+- Cost-effective ($0-49/month)
+
+**Thirdweb Engine (Legacy)**:
+- Vault-managed wallet creation and signing
+- Thirdweb Insight for webhook events
+- Automatic gas management
+- Higher cost ($99-999/month)
 
 ### Security Model
 - **Separation of Concerns**: Receive addresses isolated from operational account
-- **Key Management**: All private keys stored in Thirdweb Engine vault
+- **Key Management**: 
+  - Alchemy: Self-managed in environment variables
+  - Thirdweb: Stored in Engine vault
 - **Transaction Control**: Only `AGGREGATOR_SMART_ACCOUNT` can execute order operations
 - **Escrow Protection**: User funds held in Gateway contract until settlement/refund
+- **EVM-Only**: Focused security model for EVM chains
 
 ---
 
-This documentation provides a complete technical overview of the order lifecycle in the NEDA aggregator system. Each phase involves multiple components working together to provide a seamless payment processing experience while maintaining security, reliability, and scalability through Thirdweb Engine integration.
+This documentation provides a complete technical overview of the order lifecycle in the NEDA aggregator system. Each phase involves multiple components working together to provide a seamless EVM payment processing experience while maintaining security, reliability, and scalability through modern blockchain service providers (Alchemy recommended).
