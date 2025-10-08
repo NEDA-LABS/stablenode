@@ -28,6 +28,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/types"
 	u "github.com/NEDA-LABS/stablenode/utils"
 	"github.com/NEDA-LABS/stablenode/utils/logger"
+	"github.com/spf13/viper"
 	"github.com/shopspring/decimal"
 
 	"github.com/gin-gonic/gin"
@@ -474,6 +475,7 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 		SetPercentSettled(decimal.NewFromInt(0)).
 		SetNetworkFee(token.Edges.Network.Fee).
 		SetSenderFee(senderFee).
+		SetProtocolFee(decimal.NewFromInt(0)).
 		SetToken(token).
 		SetRate(payload.Rate).
 		SetReceiveAddress(receiveAddress).
@@ -492,7 +494,9 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 	}
 
 	// Create webhook for the smart address to monitor transfers (only for EVM networks)
-	if !strings.HasPrefix(payload.Network, "tron") {
+	// Skip webhook creation if using Alchemy (webhooks handled separately)
+	useAlchemy := viper.GetBool("USE_ALCHEMY_FOR_RECEIVE_ADDRESSES")
+	if !strings.HasPrefix(payload.Network, "tron") && !useAlchemy {
 		engineService := svc.NewEngineService()
 		webhookID, webhookSecret, err := engineService.CreateTransferWebhook(
 			ctx,

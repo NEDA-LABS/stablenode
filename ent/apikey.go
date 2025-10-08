@@ -8,10 +8,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
+	"github.com/google/uuid"
 )
 
 // APIKey is the model entity for the APIKey schema.

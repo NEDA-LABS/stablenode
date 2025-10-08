@@ -5,7 +5,6 @@ package runtime
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
@@ -32,6 +31,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/user"
 	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
 	"github.com/NEDA-LABS/stablenode/ent/webhookretryattempt"
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -247,39 +247,39 @@ func init() {
 	// paymentorder.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	paymentorder.UpdateDefaultUpdatedAt = paymentorderDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// paymentorderDescTxHash is the schema descriptor for tx_hash field.
-	paymentorderDescTxHash := paymentorderFields[8].Descriptor()
+	paymentorderDescTxHash := paymentorderFields[9].Descriptor()
 	// paymentorder.TxHashValidator is a validator for the "tx_hash" field. It is called by the builders before save.
 	paymentorder.TxHashValidator = paymentorderDescTxHash.Validators[0].(func(string) error)
 	// paymentorderDescBlockNumber is the schema descriptor for block_number field.
-	paymentorderDescBlockNumber := paymentorderFields[9].Descriptor()
+	paymentorderDescBlockNumber := paymentorderFields[10].Descriptor()
 	// paymentorder.DefaultBlockNumber holds the default value on creation for the block_number field.
 	paymentorder.DefaultBlockNumber = paymentorderDescBlockNumber.Default.(int64)
 	// paymentorderDescFromAddress is the schema descriptor for from_address field.
-	paymentorderDescFromAddress := paymentorderFields[10].Descriptor()
+	paymentorderDescFromAddress := paymentorderFields[11].Descriptor()
 	// paymentorder.FromAddressValidator is a validator for the "from_address" field. It is called by the builders before save.
 	paymentorder.FromAddressValidator = paymentorderDescFromAddress.Validators[0].(func(string) error)
 	// paymentorderDescReturnAddress is the schema descriptor for return_address field.
-	paymentorderDescReturnAddress := paymentorderFields[11].Descriptor()
+	paymentorderDescReturnAddress := paymentorderFields[12].Descriptor()
 	// paymentorder.ReturnAddressValidator is a validator for the "return_address" field. It is called by the builders before save.
 	paymentorder.ReturnAddressValidator = paymentorderDescReturnAddress.Validators[0].(func(string) error)
 	// paymentorderDescReceiveAddressText is the schema descriptor for receive_address_text field.
-	paymentorderDescReceiveAddressText := paymentorderFields[12].Descriptor()
+	paymentorderDescReceiveAddressText := paymentorderFields[13].Descriptor()
 	// paymentorder.ReceiveAddressTextValidator is a validator for the "receive_address_text" field. It is called by the builders before save.
 	paymentorder.ReceiveAddressTextValidator = paymentorderDescReceiveAddressText.Validators[0].(func(string) error)
 	// paymentorderDescFeeAddress is the schema descriptor for fee_address field.
-	paymentorderDescFeeAddress := paymentorderFields[14].Descriptor()
+	paymentorderDescFeeAddress := paymentorderFields[15].Descriptor()
 	// paymentorder.FeeAddressValidator is a validator for the "fee_address" field. It is called by the builders before save.
 	paymentorder.FeeAddressValidator = paymentorderDescFeeAddress.Validators[0].(func(string) error)
 	// paymentorderDescGatewayID is the schema descriptor for gateway_id field.
-	paymentorderDescGatewayID := paymentorderFields[15].Descriptor()
+	paymentorderDescGatewayID := paymentorderFields[16].Descriptor()
 	// paymentorder.GatewayIDValidator is a validator for the "gateway_id" field. It is called by the builders before save.
 	paymentorder.GatewayIDValidator = paymentorderDescGatewayID.Validators[0].(func(string) error)
 	// paymentorderDescMessageHash is the schema descriptor for message_hash field.
-	paymentorderDescMessageHash := paymentorderFields[16].Descriptor()
+	paymentorderDescMessageHash := paymentorderFields[17].Descriptor()
 	// paymentorder.MessageHashValidator is a validator for the "message_hash" field. It is called by the builders before save.
 	paymentorder.MessageHashValidator = paymentorderDescMessageHash.Validators[0].(func(string) error)
 	// paymentorderDescReference is the schema descriptor for reference field.
-	paymentorderDescReference := paymentorderFields[17].Descriptor()
+	paymentorderDescReference := paymentorderFields[18].Descriptor()
 	// paymentorder.ReferenceValidator is a validator for the "reference" field. It is called by the builders before save.
 	paymentorder.ReferenceValidator = paymentorderDescReference.Validators[0].(func(string) error)
 	// paymentorderDescID is the schema descriptor for id field.

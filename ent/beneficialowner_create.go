@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
 	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
+	"github.com/google/uuid"
 )
 
 // BeneficialOwnerCreate is the builder for creating a BeneficialOwner entity.

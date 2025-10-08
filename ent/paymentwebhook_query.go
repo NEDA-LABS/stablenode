@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/network"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentwebhook"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // PaymentWebhookQuery is the builder for querying PaymentWebhook entities.

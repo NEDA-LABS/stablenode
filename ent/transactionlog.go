@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/transactionlog"
+	"github.com/google/uuid"
 )
 
 // TransactionLog is the model entity for the TransactionLog schema.

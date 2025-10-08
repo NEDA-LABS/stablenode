@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
 	"github.com/NEDA-LABS/stablenode/ent/transactionlog"
+	"github.com/google/uuid"
 )
 
 // TransactionLogQuery is the builder for querying TransactionLog entities.

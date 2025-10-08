@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
 	"github.com/NEDA-LABS/stablenode/ent/senderordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/token"
+	"github.com/google/uuid"
 )
 
 // SenderOrderTokenQuery is the builder for querying SenderOrderToken entities.

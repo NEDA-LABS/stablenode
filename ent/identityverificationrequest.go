@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/identityverificationrequest"
+	"github.com/google/uuid"
 )
 
 // IdentityVerificationRequest is the model entity for the IdentityVerificationRequest schema.

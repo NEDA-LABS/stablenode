@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorderrecipient"
+	"github.com/google/uuid"
 )
 
 // PaymentOrderRecipient is the model entity for the PaymentOrderRecipient schema.

@@ -12,13 +12,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
 	"github.com/NEDA-LABS/stablenode/ent/institution"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
 	"github.com/NEDA-LABS/stablenode/ent/providercurrencies"
 	"github.com/NEDA-LABS/stablenode/ent/providerordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
+	"github.com/google/uuid"
 )
 
 // FiatCurrencyQuery is the builder for querying FiatCurrency entities.

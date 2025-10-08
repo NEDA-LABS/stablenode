@@ -10,10 +10,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/google/uuid"
 )
 
 // SenderProfile is the model entity for the SenderProfile schema.

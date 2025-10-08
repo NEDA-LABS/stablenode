@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/identityverificationrequest"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // IdentityVerificationRequestQuery is the builder for querying IdentityVerificationRequest entities.

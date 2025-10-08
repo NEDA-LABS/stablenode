@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/network"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
@@ -19,6 +18,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/providerordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/senderordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/token"
+	"github.com/google/uuid"
 )
 
 // TokenUpdate is the builder for updating Token entities.

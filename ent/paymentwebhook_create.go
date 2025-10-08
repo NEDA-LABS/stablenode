@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/network"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentwebhook"
+	"github.com/google/uuid"
 )
 
 // PaymentWebhookCreate is the builder for creating a PaymentWebhook entity.

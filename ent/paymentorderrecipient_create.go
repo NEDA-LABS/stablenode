@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorderrecipient"
+	"github.com/google/uuid"
 )
 
 // PaymentOrderRecipientCreate is the builder for creating a PaymentOrderRecipient entity.

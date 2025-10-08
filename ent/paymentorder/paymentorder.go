@@ -32,6 +32,8 @@ const (
 	FieldSenderFee = "sender_fee"
 	// FieldNetworkFee holds the string denoting the network_fee field in the database.
 	FieldNetworkFee = "network_fee"
+	// FieldProtocolFee holds the string denoting the protocol_fee field in the database.
+	FieldProtocolFee = "protocol_fee"
 	// FieldRate holds the string denoting the rate field in the database.
 	FieldRate = "rate"
 	// FieldTxHash holds the string denoting the tx_hash field in the database.
@@ -136,6 +138,7 @@ var Columns = []string{
 	FieldPercentSettled,
 	FieldSenderFee,
 	FieldNetworkFee,
+	FieldProtocolFee,
 	FieldRate,
 	FieldTxHash,
 	FieldBlockNumber,
@@ -281,6 +284,11 @@ func BySenderFee(opts ...sql.OrderTermOption) OrderOption {
 // ByNetworkFee orders the results by the network_fee field.
 func ByNetworkFee(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNetworkFee, opts...).ToFunc()
+}
+
+// ByProtocolFee orders the results by the protocol_fee field.
+func ByProtocolFee(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProtocolFee, opts...).ToFunc()
 }
 
 // ByRate orders the results by the rate field.

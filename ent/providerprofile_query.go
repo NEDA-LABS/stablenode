@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
@@ -22,6 +21,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/providerrating"
 	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
 	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/google/uuid"
 )
 
 // ProviderProfileQuery is the builder for querying ProviderProfile entities.

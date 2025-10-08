@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
+	"github.com/google/uuid"
 )
 
 // LinkedAddressCreate is the builder for creating a LinkedAddress entity.

@@ -522,10 +522,7 @@ func (s *EngineService) CreateGatewayWebhook() error {
 	var evmNetworks []*ent.Network
 
 	for _, network := range networks {
-		// Skip Tron networks as they don't use EVM webhooks
-		if strings.HasPrefix(network.Identifier, "tron") {
-			continue
-		}
+		// Only process EVM networks for webhook creation
 		chainIDs = append(chainIDs, network.ChainID)
 		chainIDsStrings = append(chainIDsStrings, strconv.FormatInt(network.ChainID, 10))
 		gatewayAddresses = append(gatewayAddresses, network.GatewayContractAddress)

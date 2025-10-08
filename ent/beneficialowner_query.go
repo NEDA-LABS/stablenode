@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/beneficialowner"
 	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // BeneficialOwnerQuery is the builder for querying BeneficialOwner entities.

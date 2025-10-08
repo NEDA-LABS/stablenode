@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/kybprofile"
 	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/google/uuid"
 )
 
 // KYBProfile is the model entity for the KYBProfile schema.

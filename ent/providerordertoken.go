@@ -9,11 +9,11 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
 	"github.com/NEDA-LABS/stablenode/ent/providerordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
 	"github.com/NEDA-LABS/stablenode/ent/token"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 

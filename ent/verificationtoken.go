@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/user"
 	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
+	"github.com/google/uuid"
 )
 
 // VerificationToken is the model entity for the VerificationToken schema.

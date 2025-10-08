@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
@@ -20,6 +19,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/senderordertoken"
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/user"
+	"github.com/google/uuid"
 )
 
 // SenderProfileQuery is the builder for querying SenderProfile entities.

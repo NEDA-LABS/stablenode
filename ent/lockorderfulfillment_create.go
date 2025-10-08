@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/lockorderfulfillment"
 	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
+	"github.com/google/uuid"
 )
 
 // LockOrderFulfillmentCreate is the builder for creating a LockOrderFulfillment entity.

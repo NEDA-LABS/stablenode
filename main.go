@@ -64,10 +64,17 @@ func main() {
 	}
 
 	// Setup gateway webhooks for all EVM networks
-	engineService := services.NewEngineService()
-	err = engineService.CreateGatewayWebhook()
-	if err != nil {
-		logger.Errorf("Failed to create gateway webhooks: %v", err)
+	serviceManager := services.NewServiceManager()
+	logger.Infof("Using blockchain service: %s", serviceManager.GetActiveService())
+	
+	// Only create webhooks if using Thirdweb (Alchemy webhooks handled differently)
+	if serviceManager.GetActiveService() == "Thirdweb Engine" {
+		err = serviceManager.GetEngineService().CreateGatewayWebhook()
+		if err != nil {
+			logger.Errorf("Failed to create gateway webhooks: %v", err)
+		}
+	} else {
+		logger.Infof("Alchemy service active - webhook setup handled separately")
 	}
 
 	// Subscribe to Redis keyspace events

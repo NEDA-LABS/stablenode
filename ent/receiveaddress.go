@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/receiveaddress"
+	"github.com/google/uuid"
 )
 
 // ReceiveAddress is the model entity for the ReceiveAddress schema.

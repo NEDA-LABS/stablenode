@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorderrecipient"
@@ -21,6 +20,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/token"
 	"github.com/NEDA-LABS/stablenode/ent/transactionlog"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -166,6 +166,27 @@ func (pou *PaymentOrderUpdate) SetNillableNetworkFee(d *decimal.Decimal) *Paymen
 // AddNetworkFee adds d to the "network_fee" field.
 func (pou *PaymentOrderUpdate) AddNetworkFee(d decimal.Decimal) *PaymentOrderUpdate {
 	pou.mutation.AddNetworkFee(d)
+	return pou
+}
+
+// SetProtocolFee sets the "protocol_fee" field.
+func (pou *PaymentOrderUpdate) SetProtocolFee(d decimal.Decimal) *PaymentOrderUpdate {
+	pou.mutation.ResetProtocolFee()
+	pou.mutation.SetProtocolFee(d)
+	return pou
+}
+
+// SetNillableProtocolFee sets the "protocol_fee" field if the given value is not nil.
+func (pou *PaymentOrderUpdate) SetNillableProtocolFee(d *decimal.Decimal) *PaymentOrderUpdate {
+	if d != nil {
+		pou.SetProtocolFee(*d)
+	}
+	return pou
+}
+
+// AddProtocolFee adds d to the "protocol_fee" field.
+func (pou *PaymentOrderUpdate) AddProtocolFee(d decimal.Decimal) *PaymentOrderUpdate {
+	pou.mutation.AddProtocolFee(d)
 	return pou
 }
 
@@ -744,6 +765,12 @@ func (pou *PaymentOrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pou.mutation.AddedNetworkFee(); ok {
 		_spec.AddField(paymentorder.FieldNetworkFee, field.TypeFloat64, value)
 	}
+	if value, ok := pou.mutation.ProtocolFee(); ok {
+		_spec.SetField(paymentorder.FieldProtocolFee, field.TypeFloat64, value)
+	}
+	if value, ok := pou.mutation.AddedProtocolFee(); ok {
+		_spec.AddField(paymentorder.FieldProtocolFee, field.TypeFloat64, value)
+	}
 	if value, ok := pou.mutation.Rate(); ok {
 		_spec.SetField(paymentorder.FieldRate, field.TypeFloat64, value)
 	}
@@ -1184,6 +1211,27 @@ func (pouo *PaymentOrderUpdateOne) SetNillableNetworkFee(d *decimal.Decimal) *Pa
 // AddNetworkFee adds d to the "network_fee" field.
 func (pouo *PaymentOrderUpdateOne) AddNetworkFee(d decimal.Decimal) *PaymentOrderUpdateOne {
 	pouo.mutation.AddNetworkFee(d)
+	return pouo
+}
+
+// SetProtocolFee sets the "protocol_fee" field.
+func (pouo *PaymentOrderUpdateOne) SetProtocolFee(d decimal.Decimal) *PaymentOrderUpdateOne {
+	pouo.mutation.ResetProtocolFee()
+	pouo.mutation.SetProtocolFee(d)
+	return pouo
+}
+
+// SetNillableProtocolFee sets the "protocol_fee" field if the given value is not nil.
+func (pouo *PaymentOrderUpdateOne) SetNillableProtocolFee(d *decimal.Decimal) *PaymentOrderUpdateOne {
+	if d != nil {
+		pouo.SetProtocolFee(*d)
+	}
+	return pouo
+}
+
+// AddProtocolFee adds d to the "protocol_fee" field.
+func (pouo *PaymentOrderUpdateOne) AddProtocolFee(d decimal.Decimal) *PaymentOrderUpdateOne {
+	pouo.mutation.AddProtocolFee(d)
 	return pouo
 }
 
@@ -1791,6 +1839,12 @@ func (pouo *PaymentOrderUpdateOne) sqlSave(ctx context.Context) (_node *PaymentO
 	}
 	if value, ok := pouo.mutation.AddedNetworkFee(); ok {
 		_spec.AddField(paymentorder.FieldNetworkFee, field.TypeFloat64, value)
+	}
+	if value, ok := pouo.mutation.ProtocolFee(); ok {
+		_spec.SetField(paymentorder.FieldProtocolFee, field.TypeFloat64, value)
+	}
+	if value, ok := pouo.mutation.AddedProtocolFee(); ok {
+		_spec.AddField(paymentorder.FieldProtocolFee, field.TypeFloat64, value)
 	}
 	if value, ok := pouo.mutation.Rate(); ok {
 		_spec.SetField(paymentorder.FieldRate, field.TypeFloat64, value)

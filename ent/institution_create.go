@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
 	"github.com/NEDA-LABS/stablenode/ent/institution"
+	"github.com/google/uuid"
 )
 
 // InstitutionCreate is the builder for creating a Institution entity.

@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/apikey"
 	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
@@ -20,6 +19,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
 	"github.com/NEDA-LABS/stablenode/ent/providerrating"
 	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
+	"github.com/google/uuid"
 )
 
 // ProviderProfileUpdate is the builder for updating ProviderProfile entities.

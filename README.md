@@ -18,8 +18,8 @@
    ↓
 2. AGGREGATOR GENERATES RECEIVE ADDRESS
    │
-   ├─→ EVM Chains: Calls Thirdweb Engine API
-   │   └─→ Engine creates ERC-4337 smart account: 0xRECEIVE_ADDRESS_123
+   ├─→ EVM Chains: Calls Blockchain Service Provider (Alchemy or Thirdweb)
+   │   └─→ Creates ERC-4337 smart account: 0xRECEIVE_ADDRESS_123
    │
    ├─→ Tron: Generates address from HD wallet
    │   └─→ Creates Tron address: TReceiveAddress123
@@ -33,9 +33,9 @@
    └─→ User transfers tokens to: 0xRECEIVE_ADDRESS_123
    │
    ↓
-4. AGGREGATOR DETECTS DEPOSIT (via Thirdweb Webhooks)
+4. AGGREGATOR DETECTS DEPOSIT (via Blockchain Webhooks)
    │
-   ├─→ Webhook receives Transfer event
+   ├─→ Webhook receives Transfer event (Alchemy Notify or Thirdweb Insight)
    ├─→ Validates: correct token, amount, receive address
    ├─→ Updates order status: crypto_deposited
    │
@@ -47,8 +47,8 @@
    │   • TO: Gateway Contract
    │   • FUNCTION: createOrder(token, amount, rate, recipient, refundAddress)
    │
-   ├─→ Sends via Thirdweb Engine:
-   │   • Engine signs with AGGREGATOR_PRIVATE_KEY
+   ├─→ Sends via Blockchain Service Provider:
+   │   • Signs with AGGREGATOR_PRIVATE_KEY (via Alchemy or Thirdweb)
    │   • Transfers funds: 0xRECEIVE_ADDRESS_123 → Gateway Contract
    │
    ├─→ Gateway Contract emits: OrderCreated event
@@ -76,8 +76,8 @@
    │   • TO: Gateway Contract
    │   • FUNCTION: settle(orderId, provider, settlePercent)
    │
-   ├─→ Sends via Thirdweb Engine:
-   │   • Engine signs with AGGREGATOR_PRIVATE_KEY
+   ├─→ Sends via Blockchain Service Provider:
+   │   • Signs with AGGREGATOR_PRIVATE_KEY (via Alchemy or Thirdweb)
    │
    ├─→ Gateway Contract:
    │   • Releases funds to provider
@@ -106,7 +106,7 @@ AGGREGATOR REFUNDS ORDER
 │   • TO: Gateway Contract
 │   • FUNCTION: refund(fee, orderId)
 │
-├─→ Sends via Thirdweb Engine
+├─→ Sends via Blockchain Service Provider (Alchemy or Thirdweb)
 │
 ├─→ Gateway Contract:
 │   • Returns funds to user's refundAddress
@@ -116,24 +116,220 @@ AGGREGATOR REFUNDS ORDER
 
 ```
 
+## Order Initiation Flow (Detailed)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      ORDER INITIATION ARCHITECTURE                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CLIENT                  API                 DATABASE            ALCHEMY/THIRDWEB
+  │                      │                      │                      │
+  │  POST /v1/sender/    │                      │                      │
+  │  orders              │                      │                      │
+  ├─────────────────────>│                      │                      │
+  │                      │                      │                      │
+  │                      │  Validate sender     │                      │
+  │                      │  & token config      │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │<─────────────────────┤                      │
+  │                      │  Sender & Token OK   │                      │
+  │                      │                      │                      │
+  │                      │ Calculate Fees:      │                      │
+  │                      │ • sender_fee = %     │                      │
+  │                      │ • network_fee        │                      │
+  │                      │ • protocol_fee = 0   │                      │
+  │                      │ • total = amount+fees│                      │
+  │                      │                      │                      │
+  │                      │                      │                      │
+  │                      │ ┌──────────────────────────────────────────┐
+  │                      │ │ IF USE_ALCHEMY_FOR_RECEIVE_ADDRESSES     │
+  │                      │ └──────────────────────────────────────────┘
+  │                      │                      │                      │
+  │                      │  CreateSmartAccount(owner, chainID, salt)   │
+  │                      ├─────────────────────────────────────────────>│
+  │                      │                      │   • Generate unique  │
+  │                      │                      │     salt (timestamp) │
+  │                      │                      │   • Compute CREATE2  │
+  │                      │                      │     address          │
+  │                      │<─────────────────────────────────────────────┤
+  │                      │  Smart Account Addr  │                      │
+  │                      │  (0x9876737E...)     │                      │
+  │                      │                      │                      │
+  │                      │ ⚠️ Webhook creation  │                      │
+  │                      │    SKIPPED           │                      │
+  │                      │                      │                      │
+  │                      │ ┌──────────────────────────────────────────┐
+  │                      │ │ ELSE (Using Thirdweb Engine)             │
+  │                      │ └──────────────────────────────────────────┘
+  │                      │                      │                      │
+  │                      │  CreateServerWallet()│                      │
+  │                      ├─────────────────────────────────────────────>│
+  │                      │<─────────────────────────────────────────────┤
+  │                      │  Wallet Address      │                      │
+  │                      │                      │                      │
+  │                      │  CreateTransferWebhook(address, token)      │
+  │                      ├─────────────────────────────────────────────>│
+  │                      │<─────────────────────────────────────────────┤
+  │                      │  Webhook ID & Secret │                      │
+  │                      │                      │                      │
+  │                      │                      │                      │
+  │                      │  BEGIN TRANSACTION   │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  Create TransactionLog                      │
+  │                      │  (status: initiated) │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  Create PaymentOrder │                      │
+  │                      │  • amount            │                      │
+  │                      │  • amount_paid = 0   │                      │
+  │                      │  • sender_fee        │                      │
+  │                      │  • network_fee       │                      │
+  │                      │  • protocol_fee = 0  │                      │
+  │                      │  • receive_address   │                      │
+  │                      │  • status = initiated│                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  Create ReceiveAddress                      │
+  │                      │  • address           │                      │
+  │                      │  • valid_until       │                      │
+  │                      │  • label             │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  Create PaymentOrderRecipient               │
+  │                      │  • institution       │                      │
+  │                      │  • account_id        │                      │
+  │                      │  • account_name      │                      │
+  │                      │  • currency          │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  IF Thirdweb:        │                      │
+  │                      │  Create PaymentWebhook                      │
+  │                      │  • webhook_id        │                      │
+  │                      │  • webhook_secret    │                      │
+  │                      │  • callback_url      │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  COMMIT TRANSACTION  │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │<─────────────────────┤                      │
+  │                      │  Transaction OK      │                      │
+  │                      │                      │                      │
+  │  201 Created         │                      │                      │
+  │  {                   │                      │                      │
+  │    order_id,         │                      │                      │
+  │    receive_address,  │                      │                      │
+  │    amount + fees,    │                      │                      │
+  │    valid_until       │                      │                      │
+  │  }                   │                      │                      │
+  │<─────────────────────┤                      │                      │
+  │                      │                      │                      │
+  │                      │                      │                      │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PAYMENT DETECTION (POST-CREATION)                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+  │                      │                      │                      │
+  │  User sends crypto   │                      │                      │
+  │  to receive_address  │                      │                      │
+  │                      │                      │                      │
+  │                      │ ┌──────────────────────────────────────────┐
+  │                      │ │ IF Thirdweb Webhook Active               │
+  │                      │ └──────────────────────────────────────────┘
+  │                      │                      │                      │
+  │                      │  POST /v1/insight/webhook                   │
+  │                      │  (Transfer event)    │                      │
+  │                      │<─────────────────────────────────────────────┤
+  │                      │                      │                      │
+  │                      │  Update amount_paid  │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │                      │
+  │                      │  Check:              │                      │
+  │                      │  amount_paid >=      │                      │
+  │                      │  total_amount?       │                      │
+  │                      ├─────────────────────>│                      │
+  │                      │                      │ DB Trigger:          │
+  │                      │                      │ check_payment_       │
+  │                      │                      │ order_amount()       │
+  │                      │                      │ validates payment    │
+  │                      │<─────────────────────┤                      │
+  │                      │  Status: validated   │                      │
+  │                      │                      │                      │
+  │                      │ ┌──────────────────────────────────────────┐
+  │                      │ │ ELSE (Alchemy - No Webhook Yet)          │
+  │                      │ └──────────────────────────────────────────┘
+  │                      │                      │                      │
+  │                      │  ⚠️ PAYMENT DETECTION NOT IMPLEMENTED       │
+  │                      │                      │                      │
+  │                      │  Options:            │                      │
+  │                      │  1. Alchemy Notify webhooks (recommended)   │
+  │                      │  2. Polling mechanism                       │
+  │                      │  3. Blockchain indexer extension            │
+  │                      │                      │                      │
+```
+
+### **Key Components:**
+
+1. **Fee Calculation**
+   - `sender_fee` = Percentage of order amount (e.g., 1%)
+   - `network_fee` = Blockchain gas fee estimate
+   - `protocol_fee` = Platform fee (currently 0)
+   - `total_amount` = amount + sender_fee + network_fee + protocol_fee
+
+2. **Receive Address Generation**
+   - **Alchemy**: Deterministic CREATE2 address with unique salt (timestamp-based)
+   - **Thirdweb**: Server-managed wallet creation via Engine API
+
+3. **Webhook Management**
+   - **Thirdweb**: Automatic webhook creation for transfer monitoring
+   - **Alchemy**: Webhook creation skipped (requires separate Alchemy Notify setup)
+
+4. **Database Trigger**
+   - `check_payment_order_amount()` validates that `amount_paid >= total_amount`
+   - Prevents order fulfillment with insufficient payment
+   - Runs automatically on order status updates
+
+5. **Payment Detection Gap (Alchemy)**
+   - ⚠️ When using Alchemy receive addresses, payment detection is not yet implemented
+   - Orders will be created but won't automatically update when crypto is deposited
+   - **Critical**: Requires implementation before production use
+   - **Options**:
+     - **A. Alchemy Notify** (recommended) - Set up webhooks in Alchemy Dashboard
+     - **B. Polling** - Background job to check address balances
+     - **C. Indexer** - Extend existing blockchain indexer to monitor Alchemy addresses
+
+---
+
 ## Overview
 
-This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration and Thirdweb Engine for wallet management.
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated multi-chain payment processing pipeline with ERC-4337 Account Abstraction integration and support for multiple blockchain service providers (Alchemy and Thirdweb Engine) for wallet management.
 
 ## Architecture Components
 
 ### Core Services
 - **Order Service**: Handles order creation and smart contract interactions (`services/order/`)
 - **Indexer Service**: Monitors blockchain events and updates database state (`services/indexer/`)
-- **Engine Service**: Manages wallet operations and blockchain transactions via Thirdweb Engine API (`services/engine.go`)
+- **Service Manager**: Routes operations between Alchemy and Thirdweb services (`services/manager.go`)
+- **Alchemy Service**: Manages smart accounts via Alchemy Account Abstraction APIs (`services/alchemy.go`)
+- **Engine Service**: Manages wallet operations via Thirdweb Engine API (`services/engine.go`)
 - **Receive Address Service**: Generates temporary deposit addresses for orders (`services/receive_address.go`)
 - **Priority Queue Service**: Manages order processing queues (`services/priority_queue.go`)
 
-### Thirdweb Engine Integration
-- **Wallet Management**: Creates and manages ERC-4337 smart accounts for receive addresses
-- **Transaction Signing**: Signs all transactions using stored private keys
-- **Webhook System**: Monitors blockchain events (Transfer, OrderCreated, OrderSettled, OrderRefunded)
-- **Key Storage**: Securely stores `AGGREGATOR_PRIVATE_KEY` and receive address keys
+### Blockchain Service Provider Integration
+
+**Alchemy (Recommended)**:
+- **Wallet Management**: Creates and manages ERC-4337 smart accounts using deterministic deployment
+- **Transaction Signing**: Direct cryptographic signing with self-managed keys
+- **Event Monitoring**: Alchemy Notify API for webhook events
+- **Key Storage**: Self-managed in environment variables
+- **Cost**: $0-49/month (free tier sufficient)
+
+**Thirdweb Engine (Legacy)**:
+- **Wallet Management**: Creates and manages ERC-4337 smart accounts via Engine API
+- **Transaction Signing**: Signs all transactions using Engine vault
+- **Webhook System**: Thirdweb Insight for blockchain events (Transfer, OrderCreated, OrderSettled, OrderRefunded)
+- **Key Storage**: Securely stores keys in Thirdweb Engine vault
+- **Cost**: $99-999/month subscription
 
 ### Database Layer
 - **Ent ORM**: Database schema and operations (`ent/`)

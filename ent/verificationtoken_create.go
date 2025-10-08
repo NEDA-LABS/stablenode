@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/user"
 	"github.com/NEDA-LABS/stablenode/ent/verificationtoken"
+	"github.com/google/uuid"
 )
 
 // VerificationTokenCreate is the builder for creating a VerificationToken entity.

@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorderrecipient"
@@ -17,6 +16,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/receiveaddress"
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/token"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -41,6 +41,8 @@ type PaymentOrder struct {
 	SenderFee decimal.Decimal `json:"sender_fee,omitempty"`
 	// NetworkFee holds the value of the "network_fee" field.
 	NetworkFee decimal.Decimal `json:"network_fee,omitempty"`
+	// ProtocolFee holds the value of the "protocol_fee" field.
+	ProtocolFee decimal.Decimal `json:"protocol_fee,omitempty"`
 	// Rate holds the value of the "rate" field.
 	Rate decimal.Decimal `json:"rate,omitempty"`
 	// TxHash holds the value of the "tx_hash" field.
@@ -178,7 +180,7 @@ func (*PaymentOrder) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case paymentorder.FieldAmount, paymentorder.FieldAmountPaid, paymentorder.FieldAmountReturned, paymentorder.FieldPercentSettled, paymentorder.FieldSenderFee, paymentorder.FieldNetworkFee, paymentorder.FieldRate, paymentorder.FieldFeePercent, paymentorder.FieldAmountInUsd:
+		case paymentorder.FieldAmount, paymentorder.FieldAmountPaid, paymentorder.FieldAmountReturned, paymentorder.FieldPercentSettled, paymentorder.FieldSenderFee, paymentorder.FieldNetworkFee, paymentorder.FieldProtocolFee, paymentorder.FieldRate, paymentorder.FieldFeePercent, paymentorder.FieldAmountInUsd:
 			values[i] = new(decimal.Decimal)
 		case paymentorder.FieldBlockNumber:
 			values[i] = new(sql.NullInt64)
@@ -264,6 +266,12 @@ func (po *PaymentOrder) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field network_fee", values[i])
 			} else if value != nil {
 				po.NetworkFee = *value
+			}
+		case paymentorder.FieldProtocolFee:
+			if value, ok := values[i].(*decimal.Decimal); !ok {
+				return fmt.Errorf("unexpected type %T for field protocol_fee", values[i])
+			} else if value != nil {
+				po.ProtocolFee = *value
 			}
 		case paymentorder.FieldRate:
 			if value, ok := values[i].(*decimal.Decimal); !ok {
@@ -465,6 +473,9 @@ func (po *PaymentOrder) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("network_fee=")
 	builder.WriteString(fmt.Sprintf("%v", po.NetworkFee))
+	builder.WriteString(", ")
+	builder.WriteString("protocol_fee=")
+	builder.WriteString(fmt.Sprintf("%v", po.ProtocolFee))
 	builder.WriteString(", ")
 	builder.WriteString("rate=")
 	builder.WriteString(fmt.Sprintf("%v", po.Rate))

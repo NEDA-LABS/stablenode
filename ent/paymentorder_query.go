@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/paymentorderrecipient"
@@ -22,6 +21,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/ent/senderprofile"
 	"github.com/NEDA-LABS/stablenode/ent/token"
 	"github.com/NEDA-LABS/stablenode/ent/transactionlog"
+	"github.com/google/uuid"
 )
 
 // PaymentOrderQuery is the builder for querying PaymentOrder entities.

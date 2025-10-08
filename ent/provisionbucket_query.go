@@ -12,12 +12,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
 	"github.com/NEDA-LABS/stablenode/ent/lockpaymentorder"
 	"github.com/NEDA-LABS/stablenode/ent/predicate"
 	"github.com/NEDA-LABS/stablenode/ent/providerprofile"
 	"github.com/NEDA-LABS/stablenode/ent/provisionbucket"
+	"github.com/google/uuid"
 )
 
 // ProvisionBucketQuery is the builder for querying ProvisionBucket entities.
