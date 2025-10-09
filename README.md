@@ -1,8 +1,5 @@
 # NEDAPay "Stablenode" Aggregator Order Lifecycle Documentation ---oct 5, 2025
 
-
-> **The Architecture is adapted from [Paycrest](https://github.com/paycrest/aggregator)** - We acknowledge and thank the Paycrest team for their work in cross-border payment infrastructure.
-
 **for development setup check [readme.md](https://github.com/NEDA-LABS/stablenode/edit/main/readme.md)**
 
 ## Overview
