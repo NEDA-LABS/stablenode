@@ -4,7 +4,7 @@
 
 ## Overview
 
-This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator system adapted from PAYCREST PROTOCOL, from initial order creation through final settlement or refund. The system implements a sophisticated EVM payment processing pipeline with ERC-4337 Account Abstraction integration and support for multiple blockchain service providers (Alchemy recommended, Thirdweb Engine legacy) for wallet management.
+This document provides a comprehensive technical overview of the order lifecycle in the NEDA "Stablenode" aggregator from initial order creation through final settlement or refund. The system implements a sophisticated EVM payment processing pipeline with ERC-4337 Account Abstraction integration and support for multiple blockchain service providers (Alchemy recommended, Thirdweb Engine legacy) for wallet management.
 
 ## Order Lifecycle Diagram
 
