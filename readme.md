@@ -5,7 +5,7 @@ The Stablenode aggregator simplifies and automates how liquidity flows between v
 
 ## Protocol Architecture
 
-![image]([https://drive.google.com/file/d/1UKPMkrSawn_brbE_YQg4S6epqV_fIzh3/view?usp=drive_link])
+![image](https://drive.google.com/uc?export=view&id=1UKPMkrSawn_brbE_YQg4S6epqV_fIzh3)
 
 **Create Order**: Users create on/off ramp orders (Payment Intents) on the Gateway Smart Contract (escrow) through the NedaPay Sender API.
 
