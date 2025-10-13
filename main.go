@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/NEDA-LABS/stablenode/config"
@@ -11,6 +15,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/storage"
 	"github.com/NEDA-LABS/stablenode/tasks"
 	"github.com/NEDA-LABS/stablenode/utils/logger"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -82,6 +87,49 @@ func main() {
 
 	// Start cron jobs
 	tasks.StartCronJobs()
+
+	// Start polling service if enabled (fallback for webhook failures)
+	var pollingService *services.PollingService
+	if viper.GetBool("ENABLE_POLLING_FALLBACK") {
+		pollingInterval := viper.GetDuration("POLLING_INTERVAL")
+		if pollingInterval == 0 {
+			pollingInterval = 1 * time.Minute // Default: 1 minute
+		}
+
+		pollingService = services.NewPollingService(pollingInterval)
+		
+		// Start in background
+		ctx := context.Background()
+		go pollingService.Start(ctx)
+
+		logger.WithFields(logger.Fields{
+			"interval":    pollingInterval,
+			"minOrderAge": viper.GetDuration("POLLING_MIN_AGE"),
+		}).Infof("✅ Polling service started (fallback mode)")
+	} else {
+		logger.Infof("⏭️  Polling service disabled (webhook-only mode)")
+	}
+
+	// Setup graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	
+	go func() {
+		sig := <-sigChan
+		logger.Infof("Received signal: %v, shutting down gracefully...", sig)
+		
+		// Stop polling service
+		if pollingService != nil {
+			pollingService.Stop()
+			logger.Infof("Polling service stopped")
+		}
+		
+		// Close database connection
+		storage.GetClient().Close()
+		logger.Infof("Database connection closed")
+		
+		os.Exit(0)
+	}()
 
 	// Run the server
 	router := routers.Routes()

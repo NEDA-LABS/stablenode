@@ -15,11 +15,14 @@ Migration from Thirdweb Engine to Alchemy for EVM-only account abstraction and s
 - [x] Add gas estimation and fee management
 
 ## Phase 3: Event & Webhook Management
-- [ ] Research Alchemy Notify API capabilities
+- [x] Research Alchemy Notify API capabilities
 - [x] Implement event listening for contract interactions
+- [x] Implement Alchemy webhook management API methods
+- [ ] Create AlchemyWebhook database schema
+- [ ] Implement webhook handler endpoint
 - [ ] Set up Alchemy Notify webhooks for address activity monitoring
-- [ ] Migrate webhook management from Thirdweb to Alchemy
 - [ ] Update webhook callback handling for Alchemy format
+- [ ] Add signature verification for Alchemy webhooks
 
 ## Phase 4: Testing & Validation
 - [x] Create test suite for Alchemy service
@@ -116,11 +119,31 @@ All core tests passing (100% success rate):
 
 ## Current Blockers
 ⚠️ **Payment Detection**: Orders can be created with Alchemy receive addresses, but payment detection requires either:
-- **Option A**: Alchemy Notify webhooks (recommended)
-- **Option B**: Polling mechanism to check address balances
+- **Option A**: Alchemy Notify webhooks (recommended) - **API methods implemented ✅**
+  - Instant detection (< 1s)
+  - No RPC costs
+  - Requires public URL
+  - See `ALCHEMY_WEBHOOK_SETUP.md`
+  
+- **Option B**: Polling mechanism - **Implementation guide ready ✅**
+  - Detection in ~30s-1m
+  - Moderate RPC costs
+  - Works locally
+  - See `POLLING_FALLBACK_GUIDE.md`
+  
 - **Option C**: Use existing blockchain indexer tasks
+  - Slower detection
+  - Shared infrastructure
+  - Minimal changes needed
 
 **Impact**: Without payment detection, orders will not be automatically fulfilled even after user deposits crypto.
+
+**Progress**: 
+- Webhook API: ✅ Complete
+- Polling guide: ✅ Complete
+- Need to choose and implement one option
+
+**Recommended**: Use webhooks (primary) + polling (fallback) for best reliability.
 
 ## Next Steps (Priority Order)
 

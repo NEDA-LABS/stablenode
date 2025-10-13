@@ -66,12 +66,14 @@ func main() {
 
 	// Test smart account creation
 	fmt.Println("📝 Creating smart account...")
-	smartAccountAddress, err := alchemyService.CreateSmartAccount(ctx, chainID, ownerAddress)
+	smartAccountAddress, salt, err := alchemyService.CreateSmartAccount(ctx, chainID, ownerAddress)
 	
 	if err != nil {
 		fmt.Printf("❌ Error: %v\n", err)
 		os.Exit(1)
 	}
+	
+	fmt.Printf("✅ Salt created: %d bytes\n", len(salt))
 
 	fmt.Println("✅ Success!")
 	fmt.Printf("Smart Account Address: %s\n", smartAccountAddress)

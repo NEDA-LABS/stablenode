@@ -108,7 +108,8 @@ func (s *EngineService) GetLatestBlock(ctx context.Context, chainID int64) (int6
 	}
 
 	// Use RPC as fallback
-	client, err := types.NewEthClient(network.RPCEndpoint)
+	fullRPCURL := utils.BuildRPCURL(network.RPCEndpoint)
+	client, err := types.NewEthClient(fullRPCURL)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create RPC client: %w", err)
 	}
@@ -759,8 +760,11 @@ func (s *EngineService) CreateGatewayWebhook() error {
 // GetContractEventsRPC fetches contract events using RPC for networks not supported by Thirdweb Insight
 // It fetches all events and filters for specified event signatures (gateway events or transfer events)
 func (s *EngineService) GetContractEventsRPC(ctx context.Context, rpcEndpoint string, contractAddress string, fromBlock int64, toBlock int64, topics []string, txHash string) ([]interface{}, error) {
+	// Build full RPC URL with API key from environment
+	fullRPCURL := utils.BuildRPCURL(rpcEndpoint)
+	
 	// Create RPC client
-	client, err := types.NewEthClient(rpcEndpoint)
+	client, err := types.NewEthClient(fullRPCURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create RPC client: %w", err)
 	}
@@ -929,7 +933,7 @@ func (s *EngineService) GetAddressTransactionHistory(ctx context.Context, chainI
 
 // GetContractEventsWithFallback tries RPC first and falls back to ThirdWeb if RPC fails
 func (s *EngineService) GetContractEventsWithFallback(ctx context.Context, network *ent.Network, contractAddress string, fromBlock int64, toBlock int64, topics []string, txHash string, eventPayload map[string]string) ([]interface{}, error) {
-	// Try RPC first
+	// Try RPC first (BuildRPCURL is called inside GetContractEventsRPC)
 	events, rpcErr := s.GetContractEventsRPC(ctx, network.RPCEndpoint, contractAddress, fromBlock, toBlock, topics, txHash)
 	if rpcErr == nil {
 		return events, nil

@@ -30,6 +30,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     depends_on:

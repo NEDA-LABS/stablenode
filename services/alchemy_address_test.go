@@ -121,20 +121,22 @@ func TestCreateSmartAccountFlow(t *testing.T) {
 	smartAccountAddress := service.computeSmartAccountAddress(ownerAddress, chainID)
 	t.Logf("   Smart Account Address: %s", smartAccountAddress)
 	
-	// Step 2: Generate init code
+	// Step 2: Generate init code (using dummy salt for test)
 	t.Logf("\n📝 Step 2: Generating init code...")
-	initCode := service.getSmartAccountInitCode(ownerAddress)
+	dummySalt := "0000000000000000000000000000000000000000000000000000000000000000"
+	initCode := service.getSmartAccountInitCode(ownerAddress, dummySalt)
 	t.Logf("   Init Code Length: %d bytes", len(initCode)/2)
 	t.Logf("   Init Code (first 66 chars): %s...", initCode[:66])
 	
 	// Step 3: Create smart account (this will use the computed address)
 	t.Logf("\n🚀 Step 3: Creating smart account via Alchemy...")
-	address, err := service.CreateSmartAccount(ctx, chainID, ownerAddress)
+	address, salt, err := service.CreateSmartAccount(ctx, chainID, ownerAddress)
 	if err != nil {
 		t.Logf("   ⚠️  Error: %v", err)
 		t.Logf("   Note: This is expected if account already exists or needs deployment")
 	} else {
 		t.Logf("   ✅ Smart Account Created: %s", address)
+		t.Logf("   ✅ Salt Length: %d bytes", len(salt))
 	}
 	
 	// Verify addresses match

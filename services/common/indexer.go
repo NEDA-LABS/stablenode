@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/NEDA-LABS/stablenode/ent"
 	"github.com/NEDA-LABS/stablenode/ent/fiatcurrency"
 	"github.com/NEDA-LABS/stablenode/ent/linkedaddress"
@@ -28,6 +27,7 @@ import (
 	"github.com/NEDA-LABS/stablenode/types"
 	"github.com/NEDA-LABS/stablenode/utils"
 	"github.com/NEDA-LABS/stablenode/utils/logger"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -39,6 +39,23 @@ func ProcessReceiveAddresses(
 	unknownAddresses []string,
 	addressToEvent map[string]*types.TokenTransferEvent,
 ) error {
+	logger.WithFields(logger.Fields{
+		"UnknownAddresses": unknownAddresses,
+		"AddressCount":     len(unknownAddresses),
+		"EventCount":       len(addressToEvent),
+	}).Info("ProcessReceiveAddresses called")
+
+	// Log each address and its event
+	for addr, event := range addressToEvent {
+		logger.WithFields(logger.Fields{
+			"Address":     addr,
+			"TxHash":      event.TxHash,
+			"From":        event.From,
+			"Value":       event.Value.String(),
+			"BlockNumber": event.BlockNumber,
+		}).Info("Address has transfer event")
+	}
+
 	orders, err := storage.Client.PaymentOrder.
 		Query().
 		Where(
@@ -56,19 +73,37 @@ func ProcessReceiveAddresses(
 		WithRecipient().
 		All(ctx)
 	if err != nil {
+		logger.WithFields(logger.Fields{
+			"Error": err.Error(),
+		}).Error("Failed to fetch orders in ProcessReceiveAddresses")
 		return fmt.Errorf("processReceiveAddresses.fetchOrders: %w", err)
 	}
+
+	logger.WithFields(logger.Fields{
+		"OrdersFound": len(orders),
+	}).Info("Orders found matching criteria")
 
 	var wg sync.WaitGroup
 	for _, order := range orders {
 		receiveAddress := order.Edges.ReceiveAddress
 		wg.Add(1)
-		go func(receiveAddress *ent.ReceiveAddress) {
+		go func(order *ent.PaymentOrder, receiveAddress *ent.ReceiveAddress) {
 			defer wg.Done()
 			transferEvent, ok := addressToEvent[receiveAddress.Address]
 			if !ok {
+				logger.WithFields(logger.Fields{
+					"ReceiveAddress": receiveAddress.Address,
+					"OrderID":        order.ID.String(),
+				}).Warn("No transfer event found for receive address in addressToEvent map")
 				return
 			}
+
+			logger.WithFields(logger.Fields{
+				"ReceiveAddress": receiveAddress.Address,
+				"OrderID":        order.ID.String(),
+				"TxHash":         transferEvent.TxHash,
+				"Value":          transferEvent.Value.String(),
+			}).Info("Updating receive address status")
 
 			_, err := UpdateReceiveAddressStatus(ctx, order.Edges.ReceiveAddress, order, transferEvent, orderService.CreateOrder, priorityQueueService.GetProviderRate)
 			if err != nil {
@@ -76,11 +111,22 @@ func ProcessReceiveAddresses(
 					logger.WithFields(logger.Fields{
 						"Error":   fmt.Sprintf("%v", err),
 						"OrderID": order.ID.String(),
+						"ReceiveAddress": receiveAddress.Address,
 					}).Errorf("Failed to update receive address status when indexing ERC20 transfers for %s", order.Edges.Token.Edges.Network.Identifier)
+				} else {
+					logger.WithFields(logger.Fields{
+						"Error":   fmt.Sprintf("%v", err),
+						"OrderID": order.ID.String(),
+					}).Info("Skipped error (duplicate or not found)")
 				}
 				return
 			}
-		}(receiveAddress)
+
+			logger.WithFields(logger.Fields{
+				"ReceiveAddress": receiveAddress.Address,
+				"OrderID":        order.ID.String(),
+			}).Info("Successfully updated receive address status")
+		}(order, receiveAddress)
 	}
 	wg.Wait()
 	return nil
@@ -473,11 +519,38 @@ func UpdateReceiveAddressStatus(
 			return false, nil
 		}
 
+		// Additional check: Look for existing transaction log with this tx_hash
+		// This prevents duplicate processing even if CreateOrder fails
+		existingTxLog, err := db.Client.TransactionLog.
+			Query().
+			Where(transactionlog.TxHashEQ(event.TxHash)).
+			First(ctx)
+		if err == nil && existingTxLog != nil {
+			// This transaction has already been processed
+			logger.WithFields(logger.Fields{
+				"TxHash":      event.TxHash,
+				"OrderID":     paymentOrder.ID,
+				"ExistingLog": existingTxLog.ID,
+			}).Info("Transaction already processed, skipping duplicate")
+			return false, nil
+		}
+
 		// This is a transfer to the receive address to create an order on-chain
 		// Compare the transferred value with the expected order amount + fees
 		fees := paymentOrder.NetworkFee.Add(paymentOrder.SenderFee)
 		orderAmountWithFees := paymentOrder.Amount.Add(fees).Round(int32(paymentOrder.Edges.Token.Decimals))
 		transferMatchesOrderAmount := event.Value.Equal(orderAmountWithFees)
+
+		// Also accept transfers that are close to the expected amount (within 1% tolerance)
+		// This handles minor rounding differences
+		tolerancePercent := decimal.NewFromFloat(0.01) // 1%
+		tolerance := orderAmountWithFees.Mul(tolerancePercent)
+		transferWithinTolerance := event.Value.GreaterThanOrEqual(orderAmountWithFees.Sub(tolerance)) &&
+			event.Value.LessThanOrEqual(orderAmountWithFees.Add(tolerance))
+
+		if transferWithinTolerance {
+			transferMatchesOrderAmount = true
+		}
 
 		logger.WithFields(logger.Fields{
 			"paymentOrderID":             paymentOrder.ID,
@@ -501,9 +574,15 @@ func UpdateReceiveAddressStatus(
 
 		orderRecipient := paymentOrder.Edges.Recipient
 		if !transferMatchesOrderAmount {
-			// Update the order amount will be updated to whatever amount was sent to the receive address
-			newOrderAmount := event.Value.Sub(fees.Round(int32(paymentOrder.Edges.Token.Decimals)))                           // 1.99
-			paymentOrderUpdate = paymentOrderUpdate.SetAmount(newOrderAmount.Round(int32(paymentOrder.Edges.Token.Decimals))) // 1.99
+			// Update the order amount to whatever amount was sent to the receive address (minus fees)
+			newOrderAmount := event.Value.Sub(fees.Round(int32(paymentOrder.Edges.Token.Decimals)))
+			// Ensure the new amount is positive
+			if newOrderAmount.GreaterThan(decimal.Zero) {
+				paymentOrderUpdate = paymentOrderUpdate.SetAmount(newOrderAmount.Round(int32(paymentOrder.Edges.Token.Decimals)))
+			} else {
+				// If fees exceed the transfer amount, set amount to the transfer value
+				paymentOrderUpdate = paymentOrderUpdate.SetAmount(event.Value)
+			}
 			// Update the rate with the current rate if order is older than 30 mins for a P2P order from the sender dashboard
 			if strings.HasPrefix(orderRecipient.Memo, "P#P") && orderRecipient.ProviderID != "" && paymentOrder.CreatedAt.Before(time.Now().Add(-30*time.Minute)) {
 				providerProfile, err := db.Client.ProviderProfile.
@@ -545,15 +624,21 @@ func UpdateReceiveAddressStatus(
 			"receiveAddress":             receiveAddress.Address,
 		}).Info("Processing receive address status after update")
 
-		if paymentOrder.AmountPaid.GreaterThanOrEqual(decimal.Zero) && paymentOrder.AmountPaid.LessThan(orderAmountWithFees) {
+		// Check if this transaction has already been processed to prevent duplicate amount additions
+		if paymentOrder.AmountPaid.GreaterThanOrEqual(decimal.Zero) && paymentOrder.TxHash != event.TxHash {
+			logger.WithFields(logger.Fields{
+				"OrderID":     paymentOrder.ID,
+				"TxHash":      event.TxHash,
+				"AmountPaid":  paymentOrder.AmountPaid,
+				"EventValue":  event.Value,
+			}).Info("Creating transaction log for crypto deposit")
+
 			transactionLog, err := tx.TransactionLog.
 				Create().
 				SetStatus(transactionlog.StatusCryptoDeposited).
-				SetGatewayID(paymentOrder.GatewayID).
 				SetTxHash(event.TxHash).
 				SetNetwork(paymentOrder.Edges.Token.Edges.Network.Identifier).
 				SetMetadata(map[string]interface{}{
-					"GatewayID": paymentOrder.GatewayID,
 					"transactionData": map[string]interface{}{
 						"from":        event.From,
 						"to":          receiveAddress.Address,
@@ -563,24 +648,57 @@ func UpdateReceiveAddressStatus(
 				}).
 				Save(ctx)
 			if err != nil {
+				logger.WithFields(logger.Fields{
+					"OrderID": paymentOrder.ID,
+					"Error":   err.Error(),
+				}).Error("Failed to create transaction log")
 				return true, fmt.Errorf("UpdateReceiveAddressStatus.transactionlog: %v", err)
 			}
 
+			// Transaction log created successfully
+
+			logger.WithFields(logger.Fields{
+				"OrderID":    paymentOrder.ID,
+				"TxHash":     event.TxHash,
+				"LogID":      transactionLog.ID,
+			}).Info("Transaction log created, updating payment order")
+
+			// FIX: Set amount paid instead of adding to prevent increment issues
+			// Update status to pending when payment is received
 			_, err = paymentOrderUpdate.
 				SetFromAddress(event.From).
 				SetTxHash(event.TxHash).
 				SetBlockNumber(int64(event.BlockNumber)).
-				AddAmountPaid(event.Value).
+				SetAmountPaid(event.Value).
+				SetStatus(paymentorder.StatusPending).
 				AddTransactions(transactionLog).
 				Save(ctx)
 			if err != nil {
+				logger.WithFields(logger.Fields{
+					"OrderID": paymentOrder.ID,
+					"Error":   err.Error(),
+				}).Error("Failed to update payment order")
 				return true, fmt.Errorf("UpdateReceiveAddressStatus.db: %v", err)
 			}
 
+			logger.WithFields(logger.Fields{
+				"OrderID": paymentOrder.ID,
+				"TxHash":  event.TxHash,
+			}).Info("Payment order updated, committing transaction")
+
 			// Commit the transaction
 			if err := tx.Commit(); err != nil {
+				logger.WithFields(logger.Fields{
+					"OrderID": paymentOrder.ID,
+					"Error":   err.Error(),
+				}).Error("Failed to commit transaction")
 				return true, fmt.Errorf("UpdateReceiveAddressStatus.db: %v", err)
 			}
+
+			logger.WithFields(logger.Fields{
+				"OrderID": paymentOrder.ID,
+				"TxHash":  event.TxHash,
+			}).Info("Transaction committed successfully")
 		}
 
 		logger.WithFields(logger.Fields{
@@ -593,8 +711,10 @@ func UpdateReceiveAddressStatus(
 			"receiveAddress":             receiveAddress.Address,
 		}).Info("Processing receive address status after payment order update")
 
-		if transferMatchesOrderAmount {
-			// Transfer value equals order amount with fees
+		// FIX: Always call createOrder when payment is received, regardless of amount matching
+		// This ensures the order progresses to the next stage
+		if event.Value.GreaterThan(decimal.Zero) {
+			// Mark receive address as used
 			_, err = receiveAddress.
 				Update().
 				SetStatus(receiveaddress.StatusUsed).
@@ -606,6 +726,7 @@ func UpdateReceiveAddressStatus(
 				return true, fmt.Errorf("UpdateReceiveAddressStatus.db: %v", err)
 			}
 
+			// Always call createOrder when payment is received
 			err = createOrder(ctx, paymentOrder.ID)
 			if err != nil {
 				return true, fmt.Errorf("UpdateReceiveAddressStatus.CreateOrder: %v", err)

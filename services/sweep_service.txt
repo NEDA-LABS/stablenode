@@ -1,0 +1,200 @@
+package services
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/NEDA-LABS/stablenode/ent"
+	"github.com/NEDA-LABS/stablenode/ent/paymentorder"
+	"github.com/NEDA-LABS/stablenode/storage"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
+	"github.com/shopspring/decimal"
+)
+
+// SweepService handles automatic sweeping of funds from receive addresses to gateway
+type SweepService struct {
+	alchemyService *AlchemyService
+}
+
+// NewSweepService creates a new sweep service
+func NewSweepService() *SweepService {
+	return &SweepService{
+		alchemyService: NewAlchemyService(),
+	}
+}
+
+// SweepOrder sweeps funds from receive address to gateway after payment is validated
+func (s *SweepService) SweepOrder(ctx context.Context, orderID string) error {
+	// Get order with all relationships
+	order, err := storage.Client.PaymentOrder.
+		Query().
+		Where(paymentorder.IDEQ(orderID)).
+		WithReceiveAddress().
+		WithToken(func(q *ent.TokenQuery) {
+			q.WithNetwork()
+		}).
+		Only(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to fetch order: %w", err)
+	}
+
+	// Verify order is validated (payment received)
+	if order.Status != paymentorder.StatusValidated {
+		return fmt.Errorf("order not validated, current status: %s", order.Status)
+	}
+
+	// Check if already swept
+	if order.SweptAt != nil {
+		logger.WithFields(logger.Fields{
+			"OrderID":  orderID,
+			"SweptAt": order.SweptAt,
+		}).Infof("Order already swept")
+		return nil
+	}
+
+	receiveAddr := order.Edges.ReceiveAddress
+	token := order.Edges.Token
+	network := token.Edges.Network
+
+	// Get gateway address for this network
+	gateway, err := s.getGatewayAddress(ctx, network.ID)
+	if err != nil {
+		return fmt.Errorf("failed to get gateway address: %w", err)
+	}
+
+	logger.WithFields(logger.Fields{
+		"OrderID":        orderID,
+		"ReceiveAddress": receiveAddr.Address,
+		"GatewayAddress": gateway.Address,
+		"Amount":         order.AmountPaid,
+		"Token":          token.Symbol,
+		"Network":        network.Identifier,
+	}).Infof("Sweeping funds to gateway")
+
+	// Convert amount to wei
+	amountWei := order.AmountPaid.Mul(decimal.NewFromInt(10).Pow(decimal.NewFromInt(int64(token.Decimals))))
+
+	// Send transaction using Alchemy
+	// Note: This requires implementing SendTransaction in AlchemyService
+	txHash, err := s.sweepFunds(
+		ctx,
+		network.ChainID,
+		receiveAddr.Address,
+		gateway.Address,
+		token.ContractAddress,
+		amountWei.String(),
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to sweep funds: %w", err)
+	}
+
+	// Update order with sweep info
+	now := time.Now()
+	_, err = order.Update().
+		SetSweptAt(&now).
+		SetSweepTxHash(txHash).
+		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update order sweep info: %w", err)
+	}
+
+	logger.WithFields(logger.Fields{
+		"OrderID": orderID,
+		"TxHash":  txHash,
+	}).Infof("✅ Funds swept successfully")
+
+	return nil
+}
+
+// sweepFunds sends funds from receive address to gateway
+func (s *SweepService) sweepFunds(
+	ctx context.Context,
+	chainID int64,
+	fromAddress string,
+	toAddress string,
+	tokenContract string,
+	amount string,
+) (txHash string, err error) {
+	// TODO: Implement using Alchemy Account Kit
+	// For now, return placeholder
+	
+	logger.WithFields(logger.Fields{
+		"From":   fromAddress,
+		"To":     toAddress,
+		"Token":  tokenContract,
+		"Amount": amount,
+		"Chain":  chainID,
+	}).Warnf("⚠️  Sweep not implemented - use manual withdrawal")
+
+	return "", fmt.Errorf("sweep not yet implemented - funds remain in receive address")
+}
+
+// getGatewayAddress gets the gateway address for a network
+func (s *SweepService) getGatewayAddress(ctx context.Context, networkID int64) (*ent.GatewayAddress, error) {
+	gateway, err := storage.Client.GatewayAddress.
+		Query().
+		Where(func(q *ent.GatewayAddressQuery) {
+			// Get active gateway for this network
+			// Adjust query based on your schema
+		}).
+		First(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("no gateway address found for network: %w", err)
+	}
+
+	return gateway, nil
+}
+
+// SweepAllValidatedOrders sweeps all validated orders that haven't been swept yet
+func (s *SweepService) SweepAllValidatedOrders(ctx context.Context) error {
+	// Get all validated orders that haven't been swept
+	orders, err := storage.Client.PaymentOrder.
+		Query().
+		Where(
+			paymentorder.StatusEQ(paymentorder.StatusValidated),
+			paymentorder.SweptAtIsNil(),
+		).
+		All(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to fetch orders: %w", err)
+	}
+
+	if len(orders) == 0 {
+		logger.Infof("No orders to sweep")
+		return nil
+	}
+
+	logger.WithFields(logger.Fields{
+		"Count": len(orders),
+	}).Infof("Sweeping validated orders")
+
+	successCount := 0
+	errorCount := 0
+
+	for _, order := range orders {
+		err := s.SweepOrder(ctx, order.ID)
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"OrderID": order.ID,
+				"Error":   err,
+			}).Errorf("Failed to sweep order")
+			errorCount++
+		} else {
+			successCount++
+		}
+	}
+
+	logger.WithFields(logger.Fields{
+		"Success": successCount,
+		"Errors":  errorCount,
+		"Total":   len(orders),
+	}).Infof("Sweep batch complete")
+
+	return nil
+}

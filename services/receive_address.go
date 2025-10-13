@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/NEDA-LABS/stablenode/config"
-	"github.com/NEDA-LABS/stablenode/utils/logger"
 	cryptoUtils "github.com/NEDA-LABS/stablenode/utils/crypto"
-	"github.com/spf13/viper"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 	tronWallet "github.com/paycrest/tron-wallet"
 	tronEnums "github.com/paycrest/tron-wallet/enums"
+	"github.com/spf13/viper"
 )
 
 // ReceiveAddressService provides functionality related to managing receive addresses
@@ -28,35 +29,84 @@ func NewReceiveAddressService() *ReceiveAddressService {
 
 // CreateSmartAddress function generates and saves a new EIP-4337 smart contract account address
 // Seamlessly switches between Thirdweb and Alchemy based on configuration
-func (s *ReceiveAddressService) CreateSmartAddress(ctx context.Context, label string) (string, error) {
+// Returns: address, encryptedSalt (for Alchemy smart accounts), error
+func (s *ReceiveAddressService) CreateSmartAddress(ctx context.Context, label string) (string, []byte, error) {
 	// Check if we should use Alchemy for receive addresses
 	if viper.GetBool("USE_ALCHEMY_FOR_RECEIVE_ADDRESSES") {
-		// Get chain ID from context or use default (Base Sepolia for now)
-		chainID := int64(84532) // Base Sepolia - you can make this dynamic
+		useSmartAccounts := viper.GetBool("USE_ALCHEMY_SMART_ACCOUNTS")
 		
-		// Use the configured owner address for all receive addresses
-		ownerAddress := viper.GetString("SMART_ACCOUNT_OWNER_ADDRESS")
-		if ownerAddress == "" {
-			logger.Warnf("SMART_ACCOUNT_OWNER_ADDRESS not set, falling back to Thirdweb")
-			return s.engineService.CreateServerWallet(ctx, label)
+		if useSmartAccounts {
+			// Create Alchemy smart account (with gas sponsorship support)
+			logger.WithFields(logger.Fields{
+				"Label": label,
+			}).Infof("Creating Alchemy smart account for receive address")
+
+			// Get chain ID (default to Base Sepolia)
+			chainID := viper.GetInt64("DEFAULT_CHAIN_ID")
+			if chainID == 0 {
+				chainID = 84532 // Base Sepolia
+			}
+
+			// Get owner address (the account that will control all receive addresses)
+			ownerAddress := viper.GetString("SMART_ACCOUNT_OWNER_ADDRESS")
+			if ownerAddress == "" {
+				return "", nil, fmt.Errorf("SMART_ACCOUNT_OWNER_ADDRESS not configured")
+			}
+
+			// Create smart account via Alchemy
+			address, salt, err := s.serviceManager.CreateServerWallet(ctx, label, chainID, ownerAddress)
+			logger.WithFields(logger.Fields{
+				"address": address,
+				"saltLength": len(salt),
+				"saltIsNil": salt == nil,
+			}).Infof("CreateServerWallet returned")
+			return address, salt, err
+		} else {
+			// Create EOA (simpler, no gas sponsorship)
+			logger.WithFields(logger.Fields{
+				"Label": label,
+			}).Infof("Creating EOA receive address for Alchemy")
+
+			// Generate new EOA (returns address and encrypted private key)
+			return s.CreateEVMAddress(ctx)
 		}
-		
-		// Create smart account via Alchemy
-		logger.WithFields(logger.Fields{
-			"Label":   label,
-			"ChainID": chainID,
-			"Owner":   ownerAddress,
-		}).Infof("Creating receive address via Alchemy")
-		
-		return s.serviceManager.CreateServerWallet(ctx, label, chainID, ownerAddress)
 	}
-	
-	// Fallback to Thirdweb Engine
+
+	// Fallback to Thirdweb Engine (no private key needed)
 	logger.WithFields(logger.Fields{
 		"Label": label,
 	}).Infof("Creating receive address via Thirdweb Engine")
-	
-	return s.engineService.CreateServerWallet(ctx, label)
+
+	address, err := s.engineService.CreateServerWallet(ctx, label)
+	return address, nil, err
+}
+
+// CreateEVMAddress generates a new EOA (Externally Owned Account) for EVM chains
+// Returns the address and encrypted private key (to be stored in salt field)
+func (s *ReceiveAddressService) CreateEVMAddress(ctx context.Context) (string, []byte, error) {
+	// Generate a new Ethereum private key
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to generate private key: %w", err)
+	}
+
+	// Get the address from the private key
+	address := crypto.PubkeyToAddress(privateKey.PublicKey).Hex()
+
+	// Get private key bytes
+	privateKeyBytes := crypto.FromECDSA(privateKey)
+
+	// Encrypt private key
+	privateKeyEncrypted, err := cryptoUtils.EncryptPlain(privateKeyBytes)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to encrypt private key: %w", err)
+	}
+
+	logger.WithFields(logger.Fields{
+		"Address": address,
+	}).Infof("Generated new EOA receive address")
+
+	return address, privateKeyEncrypted, nil
 }
 
 // CreateTronAddress generates and saves a new Tron address

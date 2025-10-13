@@ -401,7 +401,7 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 	} else {
 		// Generate unique label for smart address
 		uniqueLabel := fmt.Sprintf("payment_order_%d_%s", time.Now().UnixNano(), uuid.New().String()[:8])
-		address, err := ctrl.receiveAddressService.CreateSmartAddress(ctx, uniqueLabel)
+		address, encryptedPrivateKey, err := ctrl.receiveAddressService.CreateSmartAddress(ctx, uniqueLabel)
 		if err != nil {
 			logger.WithFields(logger.Fields{
 				"error":   err,
@@ -413,12 +413,27 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 			return
 		}
 
-		receiveAddress, err = storage.Client.ReceiveAddress.
+		// Create receive address record
+		receiveAddressCreate := storage.Client.ReceiveAddress.
 			Create().
 			SetAddress(address).
 			SetStatus(receiveaddress.StatusUnused).
-			SetValidUntil(time.Now().Add(orderConf.ReceiveAddressValidity)).
-			Save(ctx)
+			SetValidUntil(time.Now().Add(orderConf.ReceiveAddressValidity))
+
+		// Store encrypted salt/private key if provided
+		if encryptedPrivateKey != nil {
+			logger.WithFields(logger.Fields{
+				"address": address,
+				"saltLength": len(encryptedPrivateKey),
+			}).Infof("Storing salt for receive address")
+			receiveAddressCreate.SetSalt(encryptedPrivateKey)
+		} else {
+			logger.WithFields(logger.Fields{
+				"address": address,
+			}).Warnf("No salt provided for receive address - salt will be NULL")
+		}
+
+		receiveAddress, err = receiveAddressCreate.Save(ctx)
 		if err != nil {
 			logger.WithFields(logger.Fields{
 				"error":   err,

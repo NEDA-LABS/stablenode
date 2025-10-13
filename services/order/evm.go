@@ -29,12 +29,13 @@ import (
 	"github.com/NEDA-LABS/stablenode/types"
 	"github.com/NEDA-LABS/stablenode/utils"
 	cryptoUtils "github.com/NEDA-LABS/stablenode/utils/crypto"
+	"github.com/NEDA-LABS/stablenode/utils/logger"
 )
 
 // OrderEVM provides functionality related to onchain interactions for payment orders
 type OrderEVM struct {
-	priorityQueue *services.PriorityQueueService
-	engineService *services.EngineService
+	priorityQueue  *services.PriorityQueueService
+	serviceManager *services.ServiceManager
 }
 
 // NewOrderEVM creates a new instance of OrderEVM.
@@ -42,8 +43,8 @@ func NewOrderEVM() types.OrderService {
 	priorityQueue := services.NewPriorityQueueService()
 
 	return &OrderEVM{
-		priorityQueue: priorityQueue,
-		engineService: services.NewEngineService(),
+		priorityQueue:  priorityQueue,
+		serviceManager: services.NewServiceManager(),
 	}
 }
 
@@ -166,11 +167,20 @@ func (s *OrderEVM) CreateOrder(ctx context.Context, orderID uuid.UUID) error {
 		return fmt.Errorf("%s - CreateOrder.approveCallData: %w", orderIDPrefix, err)
 	}
 
+	// Convert to hex string properly
+	approveDataHex := "0x" + ethcommon.Bytes2Hex(approveGatewayData)
+	
+	logger.WithFields(logger.Fields{
+		"OrderID": orderID,
+		"ApproveDataLength": len(approveGatewayData),
+		"ApproveDataHex": approveDataHex,
+	}).Info("Created approve calldata")
+
 	// Create order
 	txPayload := []map[string]interface{}{
 		{
 			"to":    order.Edges.Token.ContractAddress,
-			"data":  fmt.Sprintf("0x%x", approveGatewayData),
+			"data":  approveDataHex,
 			"value": "0",
 		},
 		{
@@ -180,7 +190,7 @@ func (s *OrderEVM) CreateOrder(ctx context.Context, orderID uuid.UUID) error {
 		},
 	}
 
-	_, err = s.engineService.SendTransactionBatch(ctx, order.Edges.Token.Edges.Network.ChainID, address, txPayload)
+	_, err = s.serviceManager.SendTransactionBatch(ctx, order.Edges.Token.Edges.Network.ChainID, address, txPayload)
 	if err != nil {
 		return fmt.Errorf("%s - CreateOrder.sendTransactionBatch: %w", orderIDPrefix, err)
 	}
@@ -225,7 +235,7 @@ func (s *OrderEVM) RefundOrder(ctx context.Context, network *ent.Network, orderI
 		"value": "0",
 	}
 
-	_, err = s.engineService.SendTransactionBatch(ctx, lockOrder.Edges.Token.Edges.Network.ChainID, cryptoConf.AggregatorSmartAccount, []map[string]interface{}{txPayload})
+	_, err = s.serviceManager.SendTransactionBatch(ctx, lockOrder.Edges.Token.Edges.Network.ChainID, cryptoConf.AggregatorSmartAccount, []map[string]interface{}{txPayload})
 	if err != nil {
 		return fmt.Errorf("%s - RefundOrder.sendTransaction: %w", orderIDPrefix, err)
 	}
@@ -271,7 +281,7 @@ func (s *OrderEVM) SettleOrder(ctx context.Context, orderID uuid.UUID) error {
 		"value": "0",
 	}
 
-	_, err = s.engineService.SendTransactionBatch(ctx, order.Edges.Token.Edges.Network.ChainID, cryptoConf.AggregatorSmartAccount, []map[string]interface{}{txPayload})
+	_, err = s.serviceManager.SendTransactionBatch(ctx, order.Edges.Token.Edges.Network.ChainID, cryptoConf.AggregatorSmartAccount, []map[string]interface{}{txPayload})
 	if err != nil {
 		return fmt.Errorf("%s - SettleOrder.sendTransaction: %w", orderIDPrefix, err)
 	}

@@ -20,7 +20,7 @@ import (
 type IndexerEVM struct {
 	priorityQueue     *services.PriorityQueueService
 	order             types.OrderService
-	engineService     *services.EngineService
+	alchemyService    *services.AlchemyService
 	etherscanService  *services.EtherscanService
 	blockscoutService *services.BlockscoutService
 }
@@ -29,7 +29,7 @@ type IndexerEVM struct {
 func NewIndexerEVM() (types.Indexer, error) {
 	priorityQueue := services.NewPriorityQueueService()
 	orderService := order.NewOrderEVM()
-	engineService := services.NewEngineService()
+	alchemyService := services.NewAlchemyService()
 	etherscanService, err := services.NewEtherscanService()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create EtherscanService: %w", err)
@@ -39,7 +39,7 @@ func NewIndexerEVM() (types.Indexer, error) {
 	return &IndexerEVM{
 		priorityQueue:     priorityQueue,
 		order:             orderService,
-		engineService:     engineService,
+		alchemyService:    alchemyService,
 		etherscanService:  etherscanService,
 		blockscoutService: blockscoutService,
 	}, nil
@@ -78,8 +78,15 @@ func (s *IndexerEVM) IndexReceiveAddressWithBypass(ctx context.Context, token *e
 func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token *ent.Token, txHash string) (*types.EventCounts, error) {
 	eventCounts := &types.EventCounts{}
 
+	logger.WithFields(logger.Fields{
+		"TxHash":          txHash,
+		"TokenContract":   token.ContractAddress,
+		"TokenSymbol":     token.Symbol,
+		"NetworkIdentifier": token.Edges.Network.Identifier,
+	}).Info("Indexing transaction for receive address")
+
 	// Get transfer events for this token contract in this transaction
-	transferEvents, err := s.engineService.GetContractEventsWithFallback(
+	transferEvents, err := s.alchemyService.GetContractEventsWithFallback(
 		ctx,
 		token.Edges.Network,
 		token.ContractAddress,
@@ -98,8 +105,13 @@ func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token
 		return eventCounts, fmt.Errorf("error getting transfer events for token %s in transaction %s: %w", token.Symbol, txHash[:10]+"...", err)
 	}
 
+	logger.WithFields(logger.Fields{
+		"TxHash":        txHash,
+		"TransferEvents": len(transferEvents),
+	}).Info("Transfer events found in transaction")
+
 	// Find OrderCreated events for this transaction
-	gatewayEvents, err := s.engineService.GetContractEventsWithFallback(
+	gatewayEvents, err := s.alchemyService.GetContractEventsWithFallback(
 		ctx,
 		token.Edges.Network,
 		token.Edges.Network.GatewayContractAddress,
@@ -118,11 +130,26 @@ func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token
 		return eventCounts, fmt.Errorf("error getting gateway events for transaction %s: %w", txHash[:10]+"...", err)
 	}
 
+	logger.WithFields(logger.Fields{
+		"TxHash":         txHash,
+		"GatewayEvents":  len(gatewayEvents),
+		"GatewayContract": token.Edges.Network.GatewayContractAddress,
+	}).Info("Gateway events found in transaction")
+
 	// Process transfer events
-	for _, event := range transferEvents {
+	logger.WithFields(logger.Fields{
+		"TxHash":        txHash,
+		"TransferEvents": len(transferEvents),
+	}).Info("Starting to process transfer events")
+
+	for i, event := range transferEvents {
 		eventMap := event.(map[string]interface{})
 		decoded, ok := eventMap["decoded"].(map[string]interface{})
 		if !ok || decoded == nil {
+			logger.WithFields(logger.Fields{
+				"TxHash":     txHash,
+				"EventIndex": i,
+			}).Warn("Transfer event missing decoded data")
 			continue
 		}
 		// Safely extract indexed_params and non_indexed_params
@@ -134,19 +161,18 @@ func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token
 		if !ok || nonIndexedParams == nil {
 			continue
 		}
-
 		// Safely extract transfer data
 		fromStr, ok := indexedParams["from"].(string)
 		if !ok || fromStr == "" {
 			continue
 		}
-		fromAddress := ethcommon.HexToAddress(fromStr).Hex()
+		fromAddress := strings.ToLower(ethcommon.HexToAddress(fromStr).Hex())
 
 		toStr, ok := indexedParams["to"].(string)
 		if !ok || toStr == "" {
 			continue
 		}
-		toAddress := ethcommon.HexToAddress(toStr).Hex()
+		toAddress := strings.ToLower(ethcommon.HexToAddress(toStr).Hex())
 
 		valueStr, ok := nonIndexedParams["value"].(string)
 		if !ok || valueStr == "" {
@@ -186,6 +212,14 @@ func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token
 			Value:       transferValue.Div(decimal.NewFromInt(10).Pow(decimal.NewFromInt(int64(token.Decimals)))),
 		}
 
+		logger.WithFields(logger.Fields{
+			"TxHash":      txHashFromEvent,
+			"From":        fromAddress,
+			"To":          toAddress,
+			"Value":       transferEvent.Value.String(),
+			"BlockNumber": blockNumber,
+		}).Info("Processing transfer event")
+
 		// Process transfer using existing logic
 		addressToEvent := map[string]*types.TokenTransferEvent{
 			toAddress: transferEvent,
@@ -193,9 +227,18 @@ func (s *IndexerEVM) indexReceiveAddressByTransaction(ctx context.Context, token
 
 		err = common.ProcessTransfers(ctx, s.order, s.priorityQueue, []string{toAddress}, addressToEvent, token)
 		if err != nil {
-			logger.Errorf("Error processing transfer for token %s: %v", token.Symbol, err)
+			logger.WithFields(logger.Fields{
+				"Error":  err.Error(),
+				"TxHash": txHashFromEvent,
+				"To":     toAddress,
+			}).Error("Error processing transfer for token")
 			continue
 		}
+
+		logger.WithFields(logger.Fields{
+			"TxHash": txHashFromEvent,
+			"To":     toAddress,
+		}).Info("Successfully processed transfer event")
 
 		// Increment transfer count for successful processing
 		eventCounts.Transfer++
@@ -333,7 +376,7 @@ func (s *IndexerEVM) getAddressTransactionHistoryImmediate(ctx context.Context, 
 	return s.getAddressTransactionHistoryWithFallbackAndBypass(ctx, chainID, address, limit, fromBlock, toBlock, true)
 }
 
-// getAddressTransactionHistoryWithFallbackAndBypass tries etherscan first and falls back to engine or blockscout
+// getAddressTransactionHistoryWithFallbackAndBypass tries etherscan first and falls back to alchemy or blockscout
 // with option to bypass queue for immediate processing
 func (s *IndexerEVM) getAddressTransactionHistoryWithFallbackAndBypass(ctx context.Context, chainID int64, address string, limit int, fromBlock int64, toBlock int64, bypassQueue bool) ([]map[string]interface{}, error) {
 	var err error
@@ -351,7 +394,7 @@ func (s *IndexerEVM) getAddressTransactionHistoryWithFallbackAndBypass(ctx conte
 			return transactions, nil
 		}
 		// Log the error but continue to fallback
-		logger.Warnf("Etherscan failed for chain %d, falling back to Engine: %v", chainID, err)
+		logger.Warnf("Etherscan failed for chain %d, falling back to Alchemy: %v", chainID, err)
 	}
 
 	// For Lisk (chain ID 1135), use Blockscout service
@@ -362,23 +405,23 @@ func (s *IndexerEVM) getAddressTransactionHistoryWithFallbackAndBypass(ctx conte
 			return transactions, nil
 		}
 		// Log the error but continue to fallback
-		logger.Warnf("Blockscout failed for chain %d, falling back to Engine: %v", chainID, err)
+		logger.Warnf("Blockscout failed for chain %d, falling back to Alchemy: %v", chainID, err)
 	}
 
-	// Try engine service as fallback
-	// Note: Engine doesn't support chain ID 56 (BNB Smart Chain) and 1135 (Lisk)
+	// Try alchemy service as fallback
+	// Note: Alchemy doesn't support chain ID 56 (BNB Smart Chain) and 1135 (Lisk)
 	if chainID != 56 && chainID != 1135 {
-		transactions, engineErr := s.engineService.GetAddressTransactionHistory(ctx, chainID, address, limit, fromBlock, toBlock)
-		if engineErr != nil {
-			logger.Errorf("Engine failed for chain %d: %v", chainID, engineErr)
-			return nil, fmt.Errorf("both etherscan and engine failed - Etherscan: %w, Engine: %w", err, engineErr)
+		transactions, alchemyErr := s.alchemyService.GetAddressTransactionHistory(ctx, chainID, address, limit, fromBlock, toBlock)
+		if alchemyErr != nil {
+			logger.Errorf("Alchemy failed for chain %d: %v", chainID, alchemyErr)
+			return nil, fmt.Errorf("both etherscan and alchemy failed - Etherscan: %w, Alchemy: %w", err, alchemyErr)
 		}
 		return transactions, nil
 	}
 
 	// For BSC (chain ID 56), only Etherscan is supported
 	if chainID == 56 {
-		return nil, fmt.Errorf("transaction history not supported for BNB Smart Chain (chain ID 56) via either etherscan or engine")
+		return nil, fmt.Errorf("transaction history not supported for BNB Smart Chain (chain ID 56) via either etherscan or alchemy")
 	}
 
 	return nil, fmt.Errorf("transaction history not supported for chain %d via any available service", chainID)
@@ -568,7 +611,7 @@ func (s *IndexerEVM) indexGatewayByTransaction(ctx context.Context, network *ent
 		"decode":                  "true",
 	}
 
-	events, err := s.engineService.GetContractEventsWithFallback(
+	events, err := s.alchemyService.GetContractEventsWithFallback(
 		ctx,
 		network,
 		network.GatewayContractAddress,
@@ -848,7 +891,7 @@ func (s *IndexerEVM) indexProviderAddressByTransaction(ctx context.Context, netw
 	eventCounts := &types.EventCounts{}
 
 	// Get OrderSettled events for this transaction
-	events, err := s.engineService.GetContractEventsWithFallback(
+	events, err := s.alchemyService.GetContractEventsWithFallback(
 		ctx,
 		network,
 		network.GatewayContractAddress,

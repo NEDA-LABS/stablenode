@@ -26,14 +26,16 @@ func NewServiceManager() *ServiceManager {
 }
 
 // CreateServerWallet creates a smart contract account using the active service
-func (sm *ServiceManager) CreateServerWallet(ctx context.Context, label string, chainID int64, ownerAddress string) (string, error) {
+// Returns: address, encryptedSalt (nil for Thirdweb), error
+func (sm *ServiceManager) CreateServerWallet(ctx context.Context, label string, chainID int64, ownerAddress string) (string, []byte, error) {
 	if sm.useAlchemy {
 		logger.Infof("Creating smart account via Alchemy for chain %d", chainID)
 		return sm.alchemyService.CreateSmartAccount(ctx, chainID, ownerAddress)
 	}
 	
 	logger.Infof("Creating server wallet via Thirdweb Engine")
-	return sm.engineService.CreateServerWallet(ctx, label)
+	address, err := sm.engineService.CreateServerWallet(ctx, label)
+	return address, nil, err
 }
 
 // SendTransactionBatch sends a batch of transactions using the active service

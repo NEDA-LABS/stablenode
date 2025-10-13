@@ -402,11 +402,12 @@ func CreateLockPaymentOrder(
 
 		// Check AML compliance
 		if serverConf.Environment == "production" && !strings.HasPrefix(network.Identifier, "tron") {
-			ok, err := CheckAMLCompliance(network.RPCEndpoint, event.TxHash)
+			fullRPCURL := utils.BuildRPCURL(network.RPCEndpoint)
+			ok, err := CheckAMLCompliance(fullRPCURL, event.TxHash)
 			if err != nil {
 				logger.WithFields(logger.Fields{
 					"Error":    fmt.Sprintf("%v", err),
-					"endpoint": network.RPCEndpoint,
+					"endpoint": fullRPCURL,
 					"TxHash":   event.TxHash,
 				}).Errorf("Failed to check AML Compliance")
 			}
@@ -1098,6 +1099,30 @@ func createBasicLockPaymentOrderAndCancel(
 	cancellationReason string,
 	refundOrder func(context.Context, *ent.Network, string) error,
 ) error {
+	// Check if token is nil (lookup failed)
+	if token == nil {
+		logger.WithFields(logger.Fields{
+			"OrderID":            event.OrderId,
+			"TxHash":             event.TxHash,
+			"TokenAddress":       event.Token,
+			"Network":            network.Identifier,
+			"CancellationReason": cancellationReason,
+		}).Errorf("Cannot create lock payment order: token is nil")
+		
+		// Attempt refund with the order ID
+		if refundOrder != nil {
+			err := refundOrder(ctx, network, event.OrderId)
+			if err != nil {
+				logger.WithFields(logger.Fields{
+					"OrderID": event.OrderId,
+					"Error":   err,
+				}).Errorf("Failed to refund order after token lookup failure")
+			}
+		}
+		
+		return fmt.Errorf("token is nil, cannot process order %s", event.OrderId)
+	}
+	
 	// Apply token decimal adjustment to amount and protocol fee
 	adjustedAmount := event.Amount.Div(decimal.NewFromInt(10).Pow(decimal.NewFromInt(int64(token.Decimals))))
 	adjustedProtocolFee := event.ProtocolFee.Div(decimal.NewFromInt(10).Pow(decimal.NewFromInt(int64(token.Decimals))))

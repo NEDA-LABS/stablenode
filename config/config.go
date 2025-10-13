@@ -34,13 +34,13 @@ func SetupConfig() error {
 		envFilePath = ".env" // Set default value to ".env"
 	}
 
-	viper.SetConfigName(envFilePath)
+	viper.SetConfigFile(envFilePath)
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("Error to reading config file, %s", err)
+		fmt.Printf("Error reading config file %s: %s\n", envFilePath, err)
 		return err
 	}
 

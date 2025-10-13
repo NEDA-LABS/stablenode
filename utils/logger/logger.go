@@ -164,7 +164,8 @@ func (f *formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	sb.WriteString(strings.ToUpper(entry.Level.String()))
 	sb.WriteString(" ")
-	sb.WriteString(entry.Time.Format(time.RFC3339))
+	// Convert UTC time to local timezone for display
+	sb.WriteString(entry.Time.Local().Format(time.RFC3339))
 	sb.WriteString(" ")
 	sb.WriteString(f.prefix)
 	sb.WriteString(entry.Message)
