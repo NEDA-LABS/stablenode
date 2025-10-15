@@ -450,8 +450,20 @@ func init() {
 	receiveaddress.DefaultUpdatedAt = receiveaddressDescUpdatedAt.Default.(func() time.Time)
 	// receiveaddress.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	receiveaddress.UpdateDefaultUpdatedAt = receiveaddressDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// receiveaddressDescIsDeployed is the schema descriptor for is_deployed field.
+	receiveaddressDescIsDeployed := receiveaddressFields[3].Descriptor()
+	// receiveaddress.DefaultIsDeployed holds the default value on creation for the is_deployed field.
+	receiveaddress.DefaultIsDeployed = receiveaddressDescIsDeployed.Default.(bool)
+	// receiveaddressDescDeploymentTxHash is the schema descriptor for deployment_tx_hash field.
+	receiveaddressDescDeploymentTxHash := receiveaddressFields[5].Descriptor()
+	// receiveaddress.DeploymentTxHashValidator is a validator for the "deployment_tx_hash" field. It is called by the builders before save.
+	receiveaddress.DeploymentTxHashValidator = receiveaddressDescDeploymentTxHash.Validators[0].(func(string) error)
+	// receiveaddressDescTimesUsed is the schema descriptor for times_used field.
+	receiveaddressDescTimesUsed := receiveaddressFields[11].Descriptor()
+	// receiveaddress.DefaultTimesUsed holds the default value on creation for the times_used field.
+	receiveaddress.DefaultTimesUsed = receiveaddressDescTimesUsed.Default.(int)
 	// receiveaddressDescTxHash is the schema descriptor for tx_hash field.
-	receiveaddressDescTxHash := receiveaddressFields[5].Descriptor()
+	receiveaddressDescTxHash := receiveaddressFields[14].Descriptor()
 	// receiveaddress.TxHashValidator is a validator for the "tx_hash" field. It is called by the builders before save.
 	receiveaddress.TxHashValidator = receiveaddressDescTxHash.Validators[0].(func(string) error)
 	senderordertokenMixin := schema.SenderOrderToken{}.Mixin()

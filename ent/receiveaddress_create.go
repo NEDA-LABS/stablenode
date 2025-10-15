@@ -78,6 +78,132 @@ func (rac *ReceiveAddressCreate) SetNillableStatus(r *receiveaddress.Status) *Re
 	return rac
 }
 
+// SetIsDeployed sets the "is_deployed" field.
+func (rac *ReceiveAddressCreate) SetIsDeployed(b bool) *ReceiveAddressCreate {
+	rac.mutation.SetIsDeployed(b)
+	return rac
+}
+
+// SetNillableIsDeployed sets the "is_deployed" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableIsDeployed(b *bool) *ReceiveAddressCreate {
+	if b != nil {
+		rac.SetIsDeployed(*b)
+	}
+	return rac
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (rac *ReceiveAddressCreate) SetDeploymentBlock(i int64) *ReceiveAddressCreate {
+	rac.mutation.SetDeploymentBlock(i)
+	return rac
+}
+
+// SetNillableDeploymentBlock sets the "deployment_block" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableDeploymentBlock(i *int64) *ReceiveAddressCreate {
+	if i != nil {
+		rac.SetDeploymentBlock(*i)
+	}
+	return rac
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (rac *ReceiveAddressCreate) SetDeploymentTxHash(s string) *ReceiveAddressCreate {
+	rac.mutation.SetDeploymentTxHash(s)
+	return rac
+}
+
+// SetNillableDeploymentTxHash sets the "deployment_tx_hash" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableDeploymentTxHash(s *string) *ReceiveAddressCreate {
+	if s != nil {
+		rac.SetDeploymentTxHash(*s)
+	}
+	return rac
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (rac *ReceiveAddressCreate) SetDeployedAt(t time.Time) *ReceiveAddressCreate {
+	rac.mutation.SetDeployedAt(t)
+	return rac
+}
+
+// SetNillableDeployedAt sets the "deployed_at" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableDeployedAt(t *time.Time) *ReceiveAddressCreate {
+	if t != nil {
+		rac.SetDeployedAt(*t)
+	}
+	return rac
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (rac *ReceiveAddressCreate) SetNetworkIdentifier(s string) *ReceiveAddressCreate {
+	rac.mutation.SetNetworkIdentifier(s)
+	return rac
+}
+
+// SetNillableNetworkIdentifier sets the "network_identifier" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableNetworkIdentifier(s *string) *ReceiveAddressCreate {
+	if s != nil {
+		rac.SetNetworkIdentifier(*s)
+	}
+	return rac
+}
+
+// SetChainID sets the "chain_id" field.
+func (rac *ReceiveAddressCreate) SetChainID(i int64) *ReceiveAddressCreate {
+	rac.mutation.SetChainID(i)
+	return rac
+}
+
+// SetNillableChainID sets the "chain_id" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableChainID(i *int64) *ReceiveAddressCreate {
+	if i != nil {
+		rac.SetChainID(*i)
+	}
+	return rac
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (rac *ReceiveAddressCreate) SetAssignedAt(t time.Time) *ReceiveAddressCreate {
+	rac.mutation.SetAssignedAt(t)
+	return rac
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableAssignedAt(t *time.Time) *ReceiveAddressCreate {
+	if t != nil {
+		rac.SetAssignedAt(*t)
+	}
+	return rac
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (rac *ReceiveAddressCreate) SetRecycledAt(t time.Time) *ReceiveAddressCreate {
+	rac.mutation.SetRecycledAt(t)
+	return rac
+}
+
+// SetNillableRecycledAt sets the "recycled_at" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableRecycledAt(t *time.Time) *ReceiveAddressCreate {
+	if t != nil {
+		rac.SetRecycledAt(*t)
+	}
+	return rac
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (rac *ReceiveAddressCreate) SetTimesUsed(i int) *ReceiveAddressCreate {
+	rac.mutation.SetTimesUsed(i)
+	return rac
+}
+
+// SetNillableTimesUsed sets the "times_used" field if the given value is not nil.
+func (rac *ReceiveAddressCreate) SetNillableTimesUsed(i *int) *ReceiveAddressCreate {
+	if i != nil {
+		rac.SetTimesUsed(*i)
+	}
+	return rac
+}
+
 // SetLastIndexedBlock sets the "last_indexed_block" field.
 func (rac *ReceiveAddressCreate) SetLastIndexedBlock(i int64) *ReceiveAddressCreate {
 	rac.mutation.SetLastIndexedBlock(i)
@@ -200,6 +326,14 @@ func (rac *ReceiveAddressCreate) defaults() {
 		v := receiveaddress.DefaultStatus
 		rac.mutation.SetStatus(v)
 	}
+	if _, ok := rac.mutation.IsDeployed(); !ok {
+		v := receiveaddress.DefaultIsDeployed
+		rac.mutation.SetIsDeployed(v)
+	}
+	if _, ok := rac.mutation.TimesUsed(); !ok {
+		v := receiveaddress.DefaultTimesUsed
+		rac.mutation.SetTimesUsed(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -220,6 +354,17 @@ func (rac *ReceiveAddressCreate) check() error {
 		if err := receiveaddress.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.status": %w`, err)}
 		}
+	}
+	if _, ok := rac.mutation.IsDeployed(); !ok {
+		return &ValidationError{Name: "is_deployed", err: errors.New(`ent: missing required field "ReceiveAddress.is_deployed"`)}
+	}
+	if v, ok := rac.mutation.DeploymentTxHash(); ok {
+		if err := receiveaddress.DeploymentTxHashValidator(v); err != nil {
+			return &ValidationError{Name: "deployment_tx_hash", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.deployment_tx_hash": %w`, err)}
+		}
+	}
+	if _, ok := rac.mutation.TimesUsed(); !ok {
+		return &ValidationError{Name: "times_used", err: errors.New(`ent: missing required field "ReceiveAddress.times_used"`)}
 	}
 	if v, ok := rac.mutation.TxHash(); ok {
 		if err := receiveaddress.TxHashValidator(v); err != nil {
@@ -272,6 +417,42 @@ func (rac *ReceiveAddressCreate) createSpec() (*ReceiveAddress, *sqlgraph.Create
 	if value, ok := rac.mutation.Status(); ok {
 		_spec.SetField(receiveaddress.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := rac.mutation.IsDeployed(); ok {
+		_spec.SetField(receiveaddress.FieldIsDeployed, field.TypeBool, value)
+		_node.IsDeployed = value
+	}
+	if value, ok := rac.mutation.DeploymentBlock(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentBlock, field.TypeInt64, value)
+		_node.DeploymentBlock = value
+	}
+	if value, ok := rac.mutation.DeploymentTxHash(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentTxHash, field.TypeString, value)
+		_node.DeploymentTxHash = value
+	}
+	if value, ok := rac.mutation.DeployedAt(); ok {
+		_spec.SetField(receiveaddress.FieldDeployedAt, field.TypeTime, value)
+		_node.DeployedAt = value
+	}
+	if value, ok := rac.mutation.NetworkIdentifier(); ok {
+		_spec.SetField(receiveaddress.FieldNetworkIdentifier, field.TypeString, value)
+		_node.NetworkIdentifier = value
+	}
+	if value, ok := rac.mutation.ChainID(); ok {
+		_spec.SetField(receiveaddress.FieldChainID, field.TypeInt64, value)
+		_node.ChainID = value
+	}
+	if value, ok := rac.mutation.AssignedAt(); ok {
+		_spec.SetField(receiveaddress.FieldAssignedAt, field.TypeTime, value)
+		_node.AssignedAt = value
+	}
+	if value, ok := rac.mutation.RecycledAt(); ok {
+		_spec.SetField(receiveaddress.FieldRecycledAt, field.TypeTime, value)
+		_node.RecycledAt = value
+	}
+	if value, ok := rac.mutation.TimesUsed(); ok {
+		_spec.SetField(receiveaddress.FieldTimesUsed, field.TypeInt, value)
+		_node.TimesUsed = value
 	}
 	if value, ok := rac.mutation.LastIndexedBlock(); ok {
 		_spec.SetField(receiveaddress.FieldLastIndexedBlock, field.TypeInt64, value)
@@ -409,6 +590,174 @@ func (u *ReceiveAddressUpsert) SetStatus(v receiveaddress.Status) *ReceiveAddres
 // UpdateStatus sets the "status" field to the value that was provided on create.
 func (u *ReceiveAddressUpsert) UpdateStatus() *ReceiveAddressUpsert {
 	u.SetExcluded(receiveaddress.FieldStatus)
+	return u
+}
+
+// SetIsDeployed sets the "is_deployed" field.
+func (u *ReceiveAddressUpsert) SetIsDeployed(v bool) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldIsDeployed, v)
+	return u
+}
+
+// UpdateIsDeployed sets the "is_deployed" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateIsDeployed() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldIsDeployed)
+	return u
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (u *ReceiveAddressUpsert) SetDeploymentBlock(v int64) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldDeploymentBlock, v)
+	return u
+}
+
+// UpdateDeploymentBlock sets the "deployment_block" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateDeploymentBlock() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldDeploymentBlock)
+	return u
+}
+
+// AddDeploymentBlock adds v to the "deployment_block" field.
+func (u *ReceiveAddressUpsert) AddDeploymentBlock(v int64) *ReceiveAddressUpsert {
+	u.Add(receiveaddress.FieldDeploymentBlock, v)
+	return u
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (u *ReceiveAddressUpsert) ClearDeploymentBlock() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldDeploymentBlock)
+	return u
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsert) SetDeploymentTxHash(v string) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldDeploymentTxHash, v)
+	return u
+}
+
+// UpdateDeploymentTxHash sets the "deployment_tx_hash" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateDeploymentTxHash() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldDeploymentTxHash)
+	return u
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsert) ClearDeploymentTxHash() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldDeploymentTxHash)
+	return u
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (u *ReceiveAddressUpsert) SetDeployedAt(v time.Time) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldDeployedAt, v)
+	return u
+}
+
+// UpdateDeployedAt sets the "deployed_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateDeployedAt() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldDeployedAt)
+	return u
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (u *ReceiveAddressUpsert) ClearDeployedAt() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldDeployedAt)
+	return u
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (u *ReceiveAddressUpsert) SetNetworkIdentifier(v string) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldNetworkIdentifier, v)
+	return u
+}
+
+// UpdateNetworkIdentifier sets the "network_identifier" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateNetworkIdentifier() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldNetworkIdentifier)
+	return u
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (u *ReceiveAddressUpsert) ClearNetworkIdentifier() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldNetworkIdentifier)
+	return u
+}
+
+// SetChainID sets the "chain_id" field.
+func (u *ReceiveAddressUpsert) SetChainID(v int64) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldChainID, v)
+	return u
+}
+
+// UpdateChainID sets the "chain_id" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateChainID() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldChainID)
+	return u
+}
+
+// AddChainID adds v to the "chain_id" field.
+func (u *ReceiveAddressUpsert) AddChainID(v int64) *ReceiveAddressUpsert {
+	u.Add(receiveaddress.FieldChainID, v)
+	return u
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (u *ReceiveAddressUpsert) ClearChainID() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldChainID)
+	return u
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (u *ReceiveAddressUpsert) SetAssignedAt(v time.Time) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldAssignedAt, v)
+	return u
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateAssignedAt() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldAssignedAt)
+	return u
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *ReceiveAddressUpsert) ClearAssignedAt() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldAssignedAt)
+	return u
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (u *ReceiveAddressUpsert) SetRecycledAt(v time.Time) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldRecycledAt, v)
+	return u
+}
+
+// UpdateRecycledAt sets the "recycled_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateRecycledAt() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldRecycledAt)
+	return u
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (u *ReceiveAddressUpsert) ClearRecycledAt() *ReceiveAddressUpsert {
+	u.SetNull(receiveaddress.FieldRecycledAt)
+	return u
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (u *ReceiveAddressUpsert) SetTimesUsed(v int) *ReceiveAddressUpsert {
+	u.Set(receiveaddress.FieldTimesUsed, v)
+	return u
+}
+
+// UpdateTimesUsed sets the "times_used" field to the value that was provided on create.
+func (u *ReceiveAddressUpsert) UpdateTimesUsed() *ReceiveAddressUpsert {
+	u.SetExcluded(receiveaddress.FieldTimesUsed)
+	return u
+}
+
+// AddTimesUsed adds v to the "times_used" field.
+func (u *ReceiveAddressUpsert) AddTimesUsed(v int) *ReceiveAddressUpsert {
+	u.Add(receiveaddress.FieldTimesUsed, v)
 	return u
 }
 
@@ -595,6 +944,202 @@ func (u *ReceiveAddressUpsertOne) SetStatus(v receiveaddress.Status) *ReceiveAdd
 func (u *ReceiveAddressUpsertOne) UpdateStatus() *ReceiveAddressUpsertOne {
 	return u.Update(func(s *ReceiveAddressUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetIsDeployed sets the "is_deployed" field.
+func (u *ReceiveAddressUpsertOne) SetIsDeployed(v bool) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetIsDeployed(v)
+	})
+}
+
+// UpdateIsDeployed sets the "is_deployed" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateIsDeployed() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateIsDeployed()
+	})
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (u *ReceiveAddressUpsertOne) SetDeploymentBlock(v int64) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeploymentBlock(v)
+	})
+}
+
+// AddDeploymentBlock adds v to the "deployment_block" field.
+func (u *ReceiveAddressUpsertOne) AddDeploymentBlock(v int64) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddDeploymentBlock(v)
+	})
+}
+
+// UpdateDeploymentBlock sets the "deployment_block" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateDeploymentBlock() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeploymentBlock()
+	})
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (u *ReceiveAddressUpsertOne) ClearDeploymentBlock() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeploymentBlock()
+	})
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsertOne) SetDeploymentTxHash(v string) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeploymentTxHash(v)
+	})
+}
+
+// UpdateDeploymentTxHash sets the "deployment_tx_hash" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateDeploymentTxHash() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeploymentTxHash()
+	})
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsertOne) ClearDeploymentTxHash() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeploymentTxHash()
+	})
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (u *ReceiveAddressUpsertOne) SetDeployedAt(v time.Time) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeployedAt(v)
+	})
+}
+
+// UpdateDeployedAt sets the "deployed_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateDeployedAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeployedAt()
+	})
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (u *ReceiveAddressUpsertOne) ClearDeployedAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeployedAt()
+	})
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (u *ReceiveAddressUpsertOne) SetNetworkIdentifier(v string) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetNetworkIdentifier(v)
+	})
+}
+
+// UpdateNetworkIdentifier sets the "network_identifier" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateNetworkIdentifier() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateNetworkIdentifier()
+	})
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (u *ReceiveAddressUpsertOne) ClearNetworkIdentifier() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearNetworkIdentifier()
+	})
+}
+
+// SetChainID sets the "chain_id" field.
+func (u *ReceiveAddressUpsertOne) SetChainID(v int64) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetChainID(v)
+	})
+}
+
+// AddChainID adds v to the "chain_id" field.
+func (u *ReceiveAddressUpsertOne) AddChainID(v int64) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddChainID(v)
+	})
+}
+
+// UpdateChainID sets the "chain_id" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateChainID() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateChainID()
+	})
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (u *ReceiveAddressUpsertOne) ClearChainID() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearChainID()
+	})
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (u *ReceiveAddressUpsertOne) SetAssignedAt(v time.Time) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetAssignedAt(v)
+	})
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateAssignedAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateAssignedAt()
+	})
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *ReceiveAddressUpsertOne) ClearAssignedAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearAssignedAt()
+	})
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (u *ReceiveAddressUpsertOne) SetRecycledAt(v time.Time) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetRecycledAt(v)
+	})
+}
+
+// UpdateRecycledAt sets the "recycled_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateRecycledAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateRecycledAt()
+	})
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (u *ReceiveAddressUpsertOne) ClearRecycledAt() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearRecycledAt()
+	})
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (u *ReceiveAddressUpsertOne) SetTimesUsed(v int) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetTimesUsed(v)
+	})
+}
+
+// AddTimesUsed adds v to the "times_used" field.
+func (u *ReceiveAddressUpsertOne) AddTimesUsed(v int) *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddTimesUsed(v)
+	})
+}
+
+// UpdateTimesUsed sets the "times_used" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertOne) UpdateTimesUsed() *ReceiveAddressUpsertOne {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateTimesUsed()
 	})
 }
 
@@ -960,6 +1505,202 @@ func (u *ReceiveAddressUpsertBulk) SetStatus(v receiveaddress.Status) *ReceiveAd
 func (u *ReceiveAddressUpsertBulk) UpdateStatus() *ReceiveAddressUpsertBulk {
 	return u.Update(func(s *ReceiveAddressUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetIsDeployed sets the "is_deployed" field.
+func (u *ReceiveAddressUpsertBulk) SetIsDeployed(v bool) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetIsDeployed(v)
+	})
+}
+
+// UpdateIsDeployed sets the "is_deployed" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateIsDeployed() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateIsDeployed()
+	})
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (u *ReceiveAddressUpsertBulk) SetDeploymentBlock(v int64) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeploymentBlock(v)
+	})
+}
+
+// AddDeploymentBlock adds v to the "deployment_block" field.
+func (u *ReceiveAddressUpsertBulk) AddDeploymentBlock(v int64) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddDeploymentBlock(v)
+	})
+}
+
+// UpdateDeploymentBlock sets the "deployment_block" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateDeploymentBlock() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeploymentBlock()
+	})
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (u *ReceiveAddressUpsertBulk) ClearDeploymentBlock() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeploymentBlock()
+	})
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsertBulk) SetDeploymentTxHash(v string) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeploymentTxHash(v)
+	})
+}
+
+// UpdateDeploymentTxHash sets the "deployment_tx_hash" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateDeploymentTxHash() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeploymentTxHash()
+	})
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (u *ReceiveAddressUpsertBulk) ClearDeploymentTxHash() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeploymentTxHash()
+	})
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (u *ReceiveAddressUpsertBulk) SetDeployedAt(v time.Time) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetDeployedAt(v)
+	})
+}
+
+// UpdateDeployedAt sets the "deployed_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateDeployedAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateDeployedAt()
+	})
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (u *ReceiveAddressUpsertBulk) ClearDeployedAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearDeployedAt()
+	})
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (u *ReceiveAddressUpsertBulk) SetNetworkIdentifier(v string) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetNetworkIdentifier(v)
+	})
+}
+
+// UpdateNetworkIdentifier sets the "network_identifier" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateNetworkIdentifier() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateNetworkIdentifier()
+	})
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (u *ReceiveAddressUpsertBulk) ClearNetworkIdentifier() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearNetworkIdentifier()
+	})
+}
+
+// SetChainID sets the "chain_id" field.
+func (u *ReceiveAddressUpsertBulk) SetChainID(v int64) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetChainID(v)
+	})
+}
+
+// AddChainID adds v to the "chain_id" field.
+func (u *ReceiveAddressUpsertBulk) AddChainID(v int64) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddChainID(v)
+	})
+}
+
+// UpdateChainID sets the "chain_id" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateChainID() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateChainID()
+	})
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (u *ReceiveAddressUpsertBulk) ClearChainID() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearChainID()
+	})
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (u *ReceiveAddressUpsertBulk) SetAssignedAt(v time.Time) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetAssignedAt(v)
+	})
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateAssignedAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateAssignedAt()
+	})
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *ReceiveAddressUpsertBulk) ClearAssignedAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearAssignedAt()
+	})
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (u *ReceiveAddressUpsertBulk) SetRecycledAt(v time.Time) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetRecycledAt(v)
+	})
+}
+
+// UpdateRecycledAt sets the "recycled_at" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateRecycledAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateRecycledAt()
+	})
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (u *ReceiveAddressUpsertBulk) ClearRecycledAt() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.ClearRecycledAt()
+	})
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (u *ReceiveAddressUpsertBulk) SetTimesUsed(v int) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.SetTimesUsed(v)
+	})
+}
+
+// AddTimesUsed adds v to the "times_used" field.
+func (u *ReceiveAddressUpsertBulk) AddTimesUsed(v int) *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.AddTimesUsed(v)
+	})
+}
+
+// UpdateTimesUsed sets the "times_used" field to the value that was provided on create.
+func (u *ReceiveAddressUpsertBulk) UpdateTimesUsed() *ReceiveAddressUpsertBulk {
+	return u.Update(func(s *ReceiveAddressUpsert) {
+		s.UpdateTimesUsed()
 	})
 }
 

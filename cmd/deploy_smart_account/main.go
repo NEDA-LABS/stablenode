@@ -4,9 +4,11 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/big"
+	"net/http"
 	"strings"
 	"time"
 
@@ -258,26 +260,47 @@ func waitForReceipt(client *ethclient.Client, txHash common.Hash, timeout time.D
 }
 
 func computeSmartAccountAddress(factory, owner common.Address, salt *big.Int) common.Address {
-	implementation := common.HexToAddress("0x8E8e658E22B12ada97B402fF0b044D6A325013C7")
+	// Call factory.getAddress(owner, salt) via RPC to get the correct address
+	// Function selector for getAddress(address,uint256): 0x8cb84e18
 	
-	// Build minimal proxy bytecode (EIP-1167)
-	proxyPrefix, _ := hex.DecodeString("3d602d80600a3d3981f3363d3d373d3d3d363d73")
-	proxySuffix, _ := hex.DecodeString("5af43d82803e903d91602b57fd5bf3")
+	alchemyAPIKey := viper.GetString("ALCHEMY_API_KEY")
+	rpcURL := fmt.Sprintf("https://base-sepolia.g.alchemy.com/v2/%s", alchemyAPIKey)
 	
-	initCode := append(proxyPrefix, implementation.Bytes()...)
-	initCode = append(initCode, proxySuffix...)
-	initCode = append(initCode, common.LeftPadBytes(owner.Bytes(), 32)...)
+	// Encode call data
+	ownerPadded := common.LeftPadBytes(owner.Bytes(), 32)
+	saltPadded := common.LeftPadBytes(salt.Bytes(), 32)
+	callData := "0x8cb84e18" + hex.EncodeToString(ownerPadded) + hex.EncodeToString(saltPadded)
 	
-	initCodeHash := crypto.Keccak256(initCode)
+	// Make RPC call
+	payload := fmt.Sprintf(`{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"%s","data":"%s"},"latest"],"id":1}`, 
+		factory.Hex(), callData)
 	
-	// CREATE2: keccak256(0xff ++ factory ++ salt ++ keccak256(initCode))
-	saltBytes := common.LeftPadBytes(salt.Bytes(), 32)
-	data := append([]byte{0xff}, factory.Bytes()...)
-	data = append(data, saltBytes...)
-	data = append(data, initCodeHash...)
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Post(rpcURL, "application/json", strings.NewReader(payload))
+	if err != nil {
+		log.Printf("Warning: Failed to call factory.getAddress: %v", err)
+		return common.Address{}
+	}
+	defer resp.Body.Close()
 	
-	hash := crypto.Keccak256(data)
-	return common.BytesToAddress(hash[12:])
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		log.Printf("Warning: Failed to parse RPC response: %v", err)
+		return common.Address{}
+	}
+	
+	if result["error"] != nil {
+		log.Printf("Warning: RPC error: %v", result["error"])
+		return common.Address{}
+	}
+	
+	addressHex, ok := result["result"].(string)
+	if !ok || addressHex == "" {
+		log.Printf("Warning: Invalid response from factory.getAddress")
+		return common.Address{}
+	}
+	
+	return common.HexToAddress(addressHex)
 }
 
 func weiToEther(wei *big.Int) string {

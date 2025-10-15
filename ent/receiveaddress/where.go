@@ -75,6 +75,51 @@ func Salt(v []byte) predicate.ReceiveAddress {
 	return predicate.ReceiveAddress(sql.FieldEQ(FieldSalt, v))
 }
 
+// IsDeployed applies equality check predicate on the "is_deployed" field. It's identical to IsDeployedEQ.
+func IsDeployed(v bool) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldIsDeployed, v))
+}
+
+// DeploymentBlock applies equality check predicate on the "deployment_block" field. It's identical to DeploymentBlockEQ.
+func DeploymentBlock(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeploymentBlock, v))
+}
+
+// DeploymentTxHash applies equality check predicate on the "deployment_tx_hash" field. It's identical to DeploymentTxHashEQ.
+func DeploymentTxHash(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeploymentTxHash, v))
+}
+
+// DeployedAt applies equality check predicate on the "deployed_at" field. It's identical to DeployedAtEQ.
+func DeployedAt(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeployedAt, v))
+}
+
+// NetworkIdentifier applies equality check predicate on the "network_identifier" field. It's identical to NetworkIdentifierEQ.
+func NetworkIdentifier(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldNetworkIdentifier, v))
+}
+
+// ChainID applies equality check predicate on the "chain_id" field. It's identical to ChainIDEQ.
+func ChainID(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldChainID, v))
+}
+
+// AssignedAt applies equality check predicate on the "assigned_at" field. It's identical to AssignedAtEQ.
+func AssignedAt(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldAssignedAt, v))
+}
+
+// RecycledAt applies equality check predicate on the "recycled_at" field. It's identical to RecycledAtEQ.
+func RecycledAt(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldRecycledAt, v))
+}
+
+// TimesUsed applies equality check predicate on the "times_used" field. It's identical to TimesUsedEQ.
+func TimesUsed(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldTimesUsed, v))
+}
+
 // LastIndexedBlock applies equality check predicate on the "last_indexed_block" field. It's identical to LastIndexedBlockEQ.
 func LastIndexedBlock(v int64) predicate.ReceiveAddress {
 	return predicate.ReceiveAddress(sql.FieldEQ(FieldLastIndexedBlock, v))
@@ -308,6 +353,456 @@ func StatusIn(vs ...Status) predicate.ReceiveAddress {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.ReceiveAddress {
 	return predicate.ReceiveAddress(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// IsDeployedEQ applies the EQ predicate on the "is_deployed" field.
+func IsDeployedEQ(v bool) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldIsDeployed, v))
+}
+
+// IsDeployedNEQ applies the NEQ predicate on the "is_deployed" field.
+func IsDeployedNEQ(v bool) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldIsDeployed, v))
+}
+
+// DeploymentBlockEQ applies the EQ predicate on the "deployment_block" field.
+func DeploymentBlockEQ(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockNEQ applies the NEQ predicate on the "deployment_block" field.
+func DeploymentBlockNEQ(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockIn applies the In predicate on the "deployment_block" field.
+func DeploymentBlockIn(vs ...int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldDeploymentBlock, vs...))
+}
+
+// DeploymentBlockNotIn applies the NotIn predicate on the "deployment_block" field.
+func DeploymentBlockNotIn(vs ...int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldDeploymentBlock, vs...))
+}
+
+// DeploymentBlockGT applies the GT predicate on the "deployment_block" field.
+func DeploymentBlockGT(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockGTE applies the GTE predicate on the "deployment_block" field.
+func DeploymentBlockGTE(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockLT applies the LT predicate on the "deployment_block" field.
+func DeploymentBlockLT(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockLTE applies the LTE predicate on the "deployment_block" field.
+func DeploymentBlockLTE(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldDeploymentBlock, v))
+}
+
+// DeploymentBlockIsNil applies the IsNil predicate on the "deployment_block" field.
+func DeploymentBlockIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldDeploymentBlock))
+}
+
+// DeploymentBlockNotNil applies the NotNil predicate on the "deployment_block" field.
+func DeploymentBlockNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldDeploymentBlock))
+}
+
+// DeploymentTxHashEQ applies the EQ predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashEQ(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashNEQ applies the NEQ predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashNEQ(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashIn applies the In predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashIn(vs ...string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldDeploymentTxHash, vs...))
+}
+
+// DeploymentTxHashNotIn applies the NotIn predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashNotIn(vs ...string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldDeploymentTxHash, vs...))
+}
+
+// DeploymentTxHashGT applies the GT predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashGT(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashGTE applies the GTE predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashGTE(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashLT applies the LT predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashLT(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashLTE applies the LTE predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashLTE(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashContains applies the Contains predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashContains(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldContains(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashHasPrefix applies the HasPrefix predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashHasPrefix(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldHasPrefix(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashHasSuffix applies the HasSuffix predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashHasSuffix(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldHasSuffix(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashIsNil applies the IsNil predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldDeploymentTxHash))
+}
+
+// DeploymentTxHashNotNil applies the NotNil predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldDeploymentTxHash))
+}
+
+// DeploymentTxHashEqualFold applies the EqualFold predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashEqualFold(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEqualFold(FieldDeploymentTxHash, v))
+}
+
+// DeploymentTxHashContainsFold applies the ContainsFold predicate on the "deployment_tx_hash" field.
+func DeploymentTxHashContainsFold(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldContainsFold(FieldDeploymentTxHash, v))
+}
+
+// DeployedAtEQ applies the EQ predicate on the "deployed_at" field.
+func DeployedAtEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldDeployedAt, v))
+}
+
+// DeployedAtNEQ applies the NEQ predicate on the "deployed_at" field.
+func DeployedAtNEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldDeployedAt, v))
+}
+
+// DeployedAtIn applies the In predicate on the "deployed_at" field.
+func DeployedAtIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldDeployedAt, vs...))
+}
+
+// DeployedAtNotIn applies the NotIn predicate on the "deployed_at" field.
+func DeployedAtNotIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldDeployedAt, vs...))
+}
+
+// DeployedAtGT applies the GT predicate on the "deployed_at" field.
+func DeployedAtGT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldDeployedAt, v))
+}
+
+// DeployedAtGTE applies the GTE predicate on the "deployed_at" field.
+func DeployedAtGTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldDeployedAt, v))
+}
+
+// DeployedAtLT applies the LT predicate on the "deployed_at" field.
+func DeployedAtLT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldDeployedAt, v))
+}
+
+// DeployedAtLTE applies the LTE predicate on the "deployed_at" field.
+func DeployedAtLTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldDeployedAt, v))
+}
+
+// DeployedAtIsNil applies the IsNil predicate on the "deployed_at" field.
+func DeployedAtIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldDeployedAt))
+}
+
+// DeployedAtNotNil applies the NotNil predicate on the "deployed_at" field.
+func DeployedAtNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldDeployedAt))
+}
+
+// NetworkIdentifierEQ applies the EQ predicate on the "network_identifier" field.
+func NetworkIdentifierEQ(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierNEQ applies the NEQ predicate on the "network_identifier" field.
+func NetworkIdentifierNEQ(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierIn applies the In predicate on the "network_identifier" field.
+func NetworkIdentifierIn(vs ...string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldNetworkIdentifier, vs...))
+}
+
+// NetworkIdentifierNotIn applies the NotIn predicate on the "network_identifier" field.
+func NetworkIdentifierNotIn(vs ...string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldNetworkIdentifier, vs...))
+}
+
+// NetworkIdentifierGT applies the GT predicate on the "network_identifier" field.
+func NetworkIdentifierGT(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierGTE applies the GTE predicate on the "network_identifier" field.
+func NetworkIdentifierGTE(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierLT applies the LT predicate on the "network_identifier" field.
+func NetworkIdentifierLT(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierLTE applies the LTE predicate on the "network_identifier" field.
+func NetworkIdentifierLTE(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierContains applies the Contains predicate on the "network_identifier" field.
+func NetworkIdentifierContains(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldContains(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierHasPrefix applies the HasPrefix predicate on the "network_identifier" field.
+func NetworkIdentifierHasPrefix(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldHasPrefix(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierHasSuffix applies the HasSuffix predicate on the "network_identifier" field.
+func NetworkIdentifierHasSuffix(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldHasSuffix(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierIsNil applies the IsNil predicate on the "network_identifier" field.
+func NetworkIdentifierIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldNetworkIdentifier))
+}
+
+// NetworkIdentifierNotNil applies the NotNil predicate on the "network_identifier" field.
+func NetworkIdentifierNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldNetworkIdentifier))
+}
+
+// NetworkIdentifierEqualFold applies the EqualFold predicate on the "network_identifier" field.
+func NetworkIdentifierEqualFold(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEqualFold(FieldNetworkIdentifier, v))
+}
+
+// NetworkIdentifierContainsFold applies the ContainsFold predicate on the "network_identifier" field.
+func NetworkIdentifierContainsFold(v string) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldContainsFold(FieldNetworkIdentifier, v))
+}
+
+// ChainIDEQ applies the EQ predicate on the "chain_id" field.
+func ChainIDEQ(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldChainID, v))
+}
+
+// ChainIDNEQ applies the NEQ predicate on the "chain_id" field.
+func ChainIDNEQ(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldChainID, v))
+}
+
+// ChainIDIn applies the In predicate on the "chain_id" field.
+func ChainIDIn(vs ...int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldChainID, vs...))
+}
+
+// ChainIDNotIn applies the NotIn predicate on the "chain_id" field.
+func ChainIDNotIn(vs ...int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldChainID, vs...))
+}
+
+// ChainIDGT applies the GT predicate on the "chain_id" field.
+func ChainIDGT(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldChainID, v))
+}
+
+// ChainIDGTE applies the GTE predicate on the "chain_id" field.
+func ChainIDGTE(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldChainID, v))
+}
+
+// ChainIDLT applies the LT predicate on the "chain_id" field.
+func ChainIDLT(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldChainID, v))
+}
+
+// ChainIDLTE applies the LTE predicate on the "chain_id" field.
+func ChainIDLTE(v int64) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldChainID, v))
+}
+
+// ChainIDIsNil applies the IsNil predicate on the "chain_id" field.
+func ChainIDIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldChainID))
+}
+
+// ChainIDNotNil applies the NotNil predicate on the "chain_id" field.
+func ChainIDNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldChainID))
+}
+
+// AssignedAtEQ applies the EQ predicate on the "assigned_at" field.
+func AssignedAtEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldAssignedAt, v))
+}
+
+// AssignedAtNEQ applies the NEQ predicate on the "assigned_at" field.
+func AssignedAtNEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldAssignedAt, v))
+}
+
+// AssignedAtIn applies the In predicate on the "assigned_at" field.
+func AssignedAtIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldAssignedAt, vs...))
+}
+
+// AssignedAtNotIn applies the NotIn predicate on the "assigned_at" field.
+func AssignedAtNotIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldAssignedAt, vs...))
+}
+
+// AssignedAtGT applies the GT predicate on the "assigned_at" field.
+func AssignedAtGT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldAssignedAt, v))
+}
+
+// AssignedAtGTE applies the GTE predicate on the "assigned_at" field.
+func AssignedAtGTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldAssignedAt, v))
+}
+
+// AssignedAtLT applies the LT predicate on the "assigned_at" field.
+func AssignedAtLT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldAssignedAt, v))
+}
+
+// AssignedAtLTE applies the LTE predicate on the "assigned_at" field.
+func AssignedAtLTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldAssignedAt, v))
+}
+
+// AssignedAtIsNil applies the IsNil predicate on the "assigned_at" field.
+func AssignedAtIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldAssignedAt))
+}
+
+// AssignedAtNotNil applies the NotNil predicate on the "assigned_at" field.
+func AssignedAtNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldAssignedAt))
+}
+
+// RecycledAtEQ applies the EQ predicate on the "recycled_at" field.
+func RecycledAtEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldRecycledAt, v))
+}
+
+// RecycledAtNEQ applies the NEQ predicate on the "recycled_at" field.
+func RecycledAtNEQ(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldRecycledAt, v))
+}
+
+// RecycledAtIn applies the In predicate on the "recycled_at" field.
+func RecycledAtIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldRecycledAt, vs...))
+}
+
+// RecycledAtNotIn applies the NotIn predicate on the "recycled_at" field.
+func RecycledAtNotIn(vs ...time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldRecycledAt, vs...))
+}
+
+// RecycledAtGT applies the GT predicate on the "recycled_at" field.
+func RecycledAtGT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldRecycledAt, v))
+}
+
+// RecycledAtGTE applies the GTE predicate on the "recycled_at" field.
+func RecycledAtGTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldRecycledAt, v))
+}
+
+// RecycledAtLT applies the LT predicate on the "recycled_at" field.
+func RecycledAtLT(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldRecycledAt, v))
+}
+
+// RecycledAtLTE applies the LTE predicate on the "recycled_at" field.
+func RecycledAtLTE(v time.Time) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldRecycledAt, v))
+}
+
+// RecycledAtIsNil applies the IsNil predicate on the "recycled_at" field.
+func RecycledAtIsNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIsNull(FieldRecycledAt))
+}
+
+// RecycledAtNotNil applies the NotNil predicate on the "recycled_at" field.
+func RecycledAtNotNil() predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotNull(FieldRecycledAt))
+}
+
+// TimesUsedEQ applies the EQ predicate on the "times_used" field.
+func TimesUsedEQ(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldEQ(FieldTimesUsed, v))
+}
+
+// TimesUsedNEQ applies the NEQ predicate on the "times_used" field.
+func TimesUsedNEQ(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNEQ(FieldTimesUsed, v))
+}
+
+// TimesUsedIn applies the In predicate on the "times_used" field.
+func TimesUsedIn(vs ...int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldIn(FieldTimesUsed, vs...))
+}
+
+// TimesUsedNotIn applies the NotIn predicate on the "times_used" field.
+func TimesUsedNotIn(vs ...int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldNotIn(FieldTimesUsed, vs...))
+}
+
+// TimesUsedGT applies the GT predicate on the "times_used" field.
+func TimesUsedGT(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGT(FieldTimesUsed, v))
+}
+
+// TimesUsedGTE applies the GTE predicate on the "times_used" field.
+func TimesUsedGTE(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldGTE(FieldTimesUsed, v))
+}
+
+// TimesUsedLT applies the LT predicate on the "times_used" field.
+func TimesUsedLT(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLT(FieldTimesUsed, v))
+}
+
+// TimesUsedLTE applies the LTE predicate on the "times_used" field.
+func TimesUsedLTE(v int) predicate.ReceiveAddress {
+	return predicate.ReceiveAddress(sql.FieldLTE(FieldTimesUsed, v))
 }
 
 // LastIndexedBlockEQ applies the EQ predicate on the "last_indexed_block" field.

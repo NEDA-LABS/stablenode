@@ -29,6 +29,24 @@ type ReceiveAddress struct {
 	Salt []byte `json:"salt,omitempty"`
 	// Status holds the value of the "status" field.
 	Status receiveaddress.Status `json:"status,omitempty"`
+	// Whether the smart account is deployed on-chain
+	IsDeployed bool `json:"is_deployed,omitempty"`
+	// Block number where account was deployed
+	DeploymentBlock int64 `json:"deployment_block,omitempty"`
+	// Transaction hash of deployment
+	DeploymentTxHash string `json:"deployment_tx_hash,omitempty"`
+	// Timestamp when deployed
+	DeployedAt time.Time `json:"deployed_at,omitempty"`
+	// Network identifier (e.g., base-sepolia)
+	NetworkIdentifier string `json:"network_identifier,omitempty"`
+	// Chain ID (e.g., 84532)
+	ChainID int64 `json:"chain_id,omitempty"`
+	// When address was assigned to an order
+	AssignedAt time.Time `json:"assigned_at,omitempty"`
+	// When address was returned to pool
+	RecycledAt time.Time `json:"recycled_at,omitempty"`
+	// Number of times address has been reused
+	TimesUsed int `json:"times_used,omitempty"`
 	// LastIndexedBlock holds the value of the "last_indexed_block" field.
 	LastIndexedBlock int64 `json:"last_indexed_block,omitempty"`
 	// LastUsed holds the value of the "last_used" field.
@@ -71,11 +89,13 @@ func (*ReceiveAddress) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case receiveaddress.FieldSalt:
 			values[i] = new([]byte)
-		case receiveaddress.FieldID, receiveaddress.FieldLastIndexedBlock:
+		case receiveaddress.FieldIsDeployed:
+			values[i] = new(sql.NullBool)
+		case receiveaddress.FieldID, receiveaddress.FieldDeploymentBlock, receiveaddress.FieldChainID, receiveaddress.FieldTimesUsed, receiveaddress.FieldLastIndexedBlock:
 			values[i] = new(sql.NullInt64)
-		case receiveaddress.FieldAddress, receiveaddress.FieldStatus, receiveaddress.FieldTxHash:
+		case receiveaddress.FieldAddress, receiveaddress.FieldStatus, receiveaddress.FieldDeploymentTxHash, receiveaddress.FieldNetworkIdentifier, receiveaddress.FieldTxHash:
 			values[i] = new(sql.NullString)
-		case receiveaddress.FieldCreatedAt, receiveaddress.FieldUpdatedAt, receiveaddress.FieldLastUsed, receiveaddress.FieldValidUntil:
+		case receiveaddress.FieldCreatedAt, receiveaddress.FieldUpdatedAt, receiveaddress.FieldDeployedAt, receiveaddress.FieldAssignedAt, receiveaddress.FieldRecycledAt, receiveaddress.FieldLastUsed, receiveaddress.FieldValidUntil:
 			values[i] = new(sql.NullTime)
 		case receiveaddress.ForeignKeys[0]: // payment_order_receive_address
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
@@ -129,6 +149,60 @@ func (ra *ReceiveAddress) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				ra.Status = receiveaddress.Status(value.String)
+			}
+		case receiveaddress.FieldIsDeployed:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_deployed", values[i])
+			} else if value.Valid {
+				ra.IsDeployed = value.Bool
+			}
+		case receiveaddress.FieldDeploymentBlock:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field deployment_block", values[i])
+			} else if value.Valid {
+				ra.DeploymentBlock = value.Int64
+			}
+		case receiveaddress.FieldDeploymentTxHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field deployment_tx_hash", values[i])
+			} else if value.Valid {
+				ra.DeploymentTxHash = value.String
+			}
+		case receiveaddress.FieldDeployedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deployed_at", values[i])
+			} else if value.Valid {
+				ra.DeployedAt = value.Time
+			}
+		case receiveaddress.FieldNetworkIdentifier:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field network_identifier", values[i])
+			} else if value.Valid {
+				ra.NetworkIdentifier = value.String
+			}
+		case receiveaddress.FieldChainID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field chain_id", values[i])
+			} else if value.Valid {
+				ra.ChainID = value.Int64
+			}
+		case receiveaddress.FieldAssignedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field assigned_at", values[i])
+			} else if value.Valid {
+				ra.AssignedAt = value.Time
+			}
+		case receiveaddress.FieldRecycledAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field recycled_at", values[i])
+			} else if value.Valid {
+				ra.RecycledAt = value.Time
+			}
+		case receiveaddress.FieldTimesUsed:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field times_used", values[i])
+			} else if value.Valid {
+				ra.TimesUsed = int(value.Int64)
 			}
 		case receiveaddress.FieldLastIndexedBlock:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -216,6 +290,33 @@ func (ra *ReceiveAddress) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", ra.Status))
+	builder.WriteString(", ")
+	builder.WriteString("is_deployed=")
+	builder.WriteString(fmt.Sprintf("%v", ra.IsDeployed))
+	builder.WriteString(", ")
+	builder.WriteString("deployment_block=")
+	builder.WriteString(fmt.Sprintf("%v", ra.DeploymentBlock))
+	builder.WriteString(", ")
+	builder.WriteString("deployment_tx_hash=")
+	builder.WriteString(ra.DeploymentTxHash)
+	builder.WriteString(", ")
+	builder.WriteString("deployed_at=")
+	builder.WriteString(ra.DeployedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("network_identifier=")
+	builder.WriteString(ra.NetworkIdentifier)
+	builder.WriteString(", ")
+	builder.WriteString("chain_id=")
+	builder.WriteString(fmt.Sprintf("%v", ra.ChainID))
+	builder.WriteString(", ")
+	builder.WriteString("assigned_at=")
+	builder.WriteString(ra.AssignedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("recycled_at=")
+	builder.WriteString(ra.RecycledAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("times_used=")
+	builder.WriteString(fmt.Sprintf("%v", ra.TimesUsed))
 	builder.WriteString(", ")
 	builder.WriteString("last_indexed_block=")
 	builder.WriteString(fmt.Sprintf("%v", ra.LastIndexedBlock))

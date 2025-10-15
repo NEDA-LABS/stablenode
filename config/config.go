@@ -52,10 +52,13 @@ func SetupConfig() error {
 
 	var cryptoConf = CryptoConfig()
 
-	valid := bip39.IsMnemonicValid(cryptoConf.HDWalletMnemonic)
-	if !valid {
-		fmt.Printf("Invalid mnemonic phrase")
-		return nil
+	// Only validate mnemonic if it's provided (not needed for pool addresses)
+	if cryptoConf.HDWalletMnemonic != "" {
+		valid := bip39.IsMnemonicValid(cryptoConf.HDWalletMnemonic)
+		if !valid {
+			fmt.Printf("Invalid mnemonic phrase")
+			return nil
+		}
 	}
 
 	return nil

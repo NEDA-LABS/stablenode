@@ -18409,6 +18409,18 @@ type ReceiveAddressMutation struct {
 	address               *string
 	salt                  *[]byte
 	status                *receiveaddress.Status
+	is_deployed           *bool
+	deployment_block      *int64
+	adddeployment_block   *int64
+	deployment_tx_hash    *string
+	deployed_at           *time.Time
+	network_identifier    *string
+	chain_id              *int64
+	addchain_id           *int64
+	assigned_at           *time.Time
+	recycled_at           *time.Time
+	times_used            *int
+	addtimes_used         *int
 	last_indexed_block    *int64
 	addlast_indexed_block *int64
 	last_used             *time.Time
@@ -18713,6 +18725,483 @@ func (m *ReceiveAddressMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetIsDeployed sets the "is_deployed" field.
+func (m *ReceiveAddressMutation) SetIsDeployed(b bool) {
+	m.is_deployed = &b
+}
+
+// IsDeployed returns the value of the "is_deployed" field in the mutation.
+func (m *ReceiveAddressMutation) IsDeployed() (r bool, exists bool) {
+	v := m.is_deployed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDeployed returns the old "is_deployed" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldIsDeployed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDeployed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDeployed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDeployed: %w", err)
+	}
+	return oldValue.IsDeployed, nil
+}
+
+// ResetIsDeployed resets all changes to the "is_deployed" field.
+func (m *ReceiveAddressMutation) ResetIsDeployed() {
+	m.is_deployed = nil
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (m *ReceiveAddressMutation) SetDeploymentBlock(i int64) {
+	m.deployment_block = &i
+	m.adddeployment_block = nil
+}
+
+// DeploymentBlock returns the value of the "deployment_block" field in the mutation.
+func (m *ReceiveAddressMutation) DeploymentBlock() (r int64, exists bool) {
+	v := m.deployment_block
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeploymentBlock returns the old "deployment_block" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldDeploymentBlock(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeploymentBlock is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeploymentBlock requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeploymentBlock: %w", err)
+	}
+	return oldValue.DeploymentBlock, nil
+}
+
+// AddDeploymentBlock adds i to the "deployment_block" field.
+func (m *ReceiveAddressMutation) AddDeploymentBlock(i int64) {
+	if m.adddeployment_block != nil {
+		*m.adddeployment_block += i
+	} else {
+		m.adddeployment_block = &i
+	}
+}
+
+// AddedDeploymentBlock returns the value that was added to the "deployment_block" field in this mutation.
+func (m *ReceiveAddressMutation) AddedDeploymentBlock() (r int64, exists bool) {
+	v := m.adddeployment_block
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (m *ReceiveAddressMutation) ClearDeploymentBlock() {
+	m.deployment_block = nil
+	m.adddeployment_block = nil
+	m.clearedFields[receiveaddress.FieldDeploymentBlock] = struct{}{}
+}
+
+// DeploymentBlockCleared returns if the "deployment_block" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) DeploymentBlockCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldDeploymentBlock]
+	return ok
+}
+
+// ResetDeploymentBlock resets all changes to the "deployment_block" field.
+func (m *ReceiveAddressMutation) ResetDeploymentBlock() {
+	m.deployment_block = nil
+	m.adddeployment_block = nil
+	delete(m.clearedFields, receiveaddress.FieldDeploymentBlock)
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (m *ReceiveAddressMutation) SetDeploymentTxHash(s string) {
+	m.deployment_tx_hash = &s
+}
+
+// DeploymentTxHash returns the value of the "deployment_tx_hash" field in the mutation.
+func (m *ReceiveAddressMutation) DeploymentTxHash() (r string, exists bool) {
+	v := m.deployment_tx_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeploymentTxHash returns the old "deployment_tx_hash" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldDeploymentTxHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeploymentTxHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeploymentTxHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeploymentTxHash: %w", err)
+	}
+	return oldValue.DeploymentTxHash, nil
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (m *ReceiveAddressMutation) ClearDeploymentTxHash() {
+	m.deployment_tx_hash = nil
+	m.clearedFields[receiveaddress.FieldDeploymentTxHash] = struct{}{}
+}
+
+// DeploymentTxHashCleared returns if the "deployment_tx_hash" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) DeploymentTxHashCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldDeploymentTxHash]
+	return ok
+}
+
+// ResetDeploymentTxHash resets all changes to the "deployment_tx_hash" field.
+func (m *ReceiveAddressMutation) ResetDeploymentTxHash() {
+	m.deployment_tx_hash = nil
+	delete(m.clearedFields, receiveaddress.FieldDeploymentTxHash)
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (m *ReceiveAddressMutation) SetDeployedAt(t time.Time) {
+	m.deployed_at = &t
+}
+
+// DeployedAt returns the value of the "deployed_at" field in the mutation.
+func (m *ReceiveAddressMutation) DeployedAt() (r time.Time, exists bool) {
+	v := m.deployed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeployedAt returns the old "deployed_at" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldDeployedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeployedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeployedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeployedAt: %w", err)
+	}
+	return oldValue.DeployedAt, nil
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (m *ReceiveAddressMutation) ClearDeployedAt() {
+	m.deployed_at = nil
+	m.clearedFields[receiveaddress.FieldDeployedAt] = struct{}{}
+}
+
+// DeployedAtCleared returns if the "deployed_at" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) DeployedAtCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldDeployedAt]
+	return ok
+}
+
+// ResetDeployedAt resets all changes to the "deployed_at" field.
+func (m *ReceiveAddressMutation) ResetDeployedAt() {
+	m.deployed_at = nil
+	delete(m.clearedFields, receiveaddress.FieldDeployedAt)
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (m *ReceiveAddressMutation) SetNetworkIdentifier(s string) {
+	m.network_identifier = &s
+}
+
+// NetworkIdentifier returns the value of the "network_identifier" field in the mutation.
+func (m *ReceiveAddressMutation) NetworkIdentifier() (r string, exists bool) {
+	v := m.network_identifier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNetworkIdentifier returns the old "network_identifier" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldNetworkIdentifier(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNetworkIdentifier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNetworkIdentifier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNetworkIdentifier: %w", err)
+	}
+	return oldValue.NetworkIdentifier, nil
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (m *ReceiveAddressMutation) ClearNetworkIdentifier() {
+	m.network_identifier = nil
+	m.clearedFields[receiveaddress.FieldNetworkIdentifier] = struct{}{}
+}
+
+// NetworkIdentifierCleared returns if the "network_identifier" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) NetworkIdentifierCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldNetworkIdentifier]
+	return ok
+}
+
+// ResetNetworkIdentifier resets all changes to the "network_identifier" field.
+func (m *ReceiveAddressMutation) ResetNetworkIdentifier() {
+	m.network_identifier = nil
+	delete(m.clearedFields, receiveaddress.FieldNetworkIdentifier)
+}
+
+// SetChainID sets the "chain_id" field.
+func (m *ReceiveAddressMutation) SetChainID(i int64) {
+	m.chain_id = &i
+	m.addchain_id = nil
+}
+
+// ChainID returns the value of the "chain_id" field in the mutation.
+func (m *ReceiveAddressMutation) ChainID() (r int64, exists bool) {
+	v := m.chain_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChainID returns the old "chain_id" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldChainID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChainID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChainID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChainID: %w", err)
+	}
+	return oldValue.ChainID, nil
+}
+
+// AddChainID adds i to the "chain_id" field.
+func (m *ReceiveAddressMutation) AddChainID(i int64) {
+	if m.addchain_id != nil {
+		*m.addchain_id += i
+	} else {
+		m.addchain_id = &i
+	}
+}
+
+// AddedChainID returns the value that was added to the "chain_id" field in this mutation.
+func (m *ReceiveAddressMutation) AddedChainID() (r int64, exists bool) {
+	v := m.addchain_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (m *ReceiveAddressMutation) ClearChainID() {
+	m.chain_id = nil
+	m.addchain_id = nil
+	m.clearedFields[receiveaddress.FieldChainID] = struct{}{}
+}
+
+// ChainIDCleared returns if the "chain_id" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) ChainIDCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldChainID]
+	return ok
+}
+
+// ResetChainID resets all changes to the "chain_id" field.
+func (m *ReceiveAddressMutation) ResetChainID() {
+	m.chain_id = nil
+	m.addchain_id = nil
+	delete(m.clearedFields, receiveaddress.FieldChainID)
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (m *ReceiveAddressMutation) SetAssignedAt(t time.Time) {
+	m.assigned_at = &t
+}
+
+// AssignedAt returns the value of the "assigned_at" field in the mutation.
+func (m *ReceiveAddressMutation) AssignedAt() (r time.Time, exists bool) {
+	v := m.assigned_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssignedAt returns the old "assigned_at" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldAssignedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssignedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssignedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssignedAt: %w", err)
+	}
+	return oldValue.AssignedAt, nil
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (m *ReceiveAddressMutation) ClearAssignedAt() {
+	m.assigned_at = nil
+	m.clearedFields[receiveaddress.FieldAssignedAt] = struct{}{}
+}
+
+// AssignedAtCleared returns if the "assigned_at" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) AssignedAtCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldAssignedAt]
+	return ok
+}
+
+// ResetAssignedAt resets all changes to the "assigned_at" field.
+func (m *ReceiveAddressMutation) ResetAssignedAt() {
+	m.assigned_at = nil
+	delete(m.clearedFields, receiveaddress.FieldAssignedAt)
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (m *ReceiveAddressMutation) SetRecycledAt(t time.Time) {
+	m.recycled_at = &t
+}
+
+// RecycledAt returns the value of the "recycled_at" field in the mutation.
+func (m *ReceiveAddressMutation) RecycledAt() (r time.Time, exists bool) {
+	v := m.recycled_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRecycledAt returns the old "recycled_at" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldRecycledAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRecycledAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRecycledAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRecycledAt: %w", err)
+	}
+	return oldValue.RecycledAt, nil
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (m *ReceiveAddressMutation) ClearRecycledAt() {
+	m.recycled_at = nil
+	m.clearedFields[receiveaddress.FieldRecycledAt] = struct{}{}
+}
+
+// RecycledAtCleared returns if the "recycled_at" field was cleared in this mutation.
+func (m *ReceiveAddressMutation) RecycledAtCleared() bool {
+	_, ok := m.clearedFields[receiveaddress.FieldRecycledAt]
+	return ok
+}
+
+// ResetRecycledAt resets all changes to the "recycled_at" field.
+func (m *ReceiveAddressMutation) ResetRecycledAt() {
+	m.recycled_at = nil
+	delete(m.clearedFields, receiveaddress.FieldRecycledAt)
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (m *ReceiveAddressMutation) SetTimesUsed(i int) {
+	m.times_used = &i
+	m.addtimes_used = nil
+}
+
+// TimesUsed returns the value of the "times_used" field in the mutation.
+func (m *ReceiveAddressMutation) TimesUsed() (r int, exists bool) {
+	v := m.times_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTimesUsed returns the old "times_used" field's value of the ReceiveAddress entity.
+// If the ReceiveAddress object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReceiveAddressMutation) OldTimesUsed(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTimesUsed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTimesUsed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimesUsed: %w", err)
+	}
+	return oldValue.TimesUsed, nil
+}
+
+// AddTimesUsed adds i to the "times_used" field.
+func (m *ReceiveAddressMutation) AddTimesUsed(i int) {
+	if m.addtimes_used != nil {
+		*m.addtimes_used += i
+	} else {
+		m.addtimes_used = &i
+	}
+}
+
+// AddedTimesUsed returns the value that was added to the "times_used" field in this mutation.
+func (m *ReceiveAddressMutation) AddedTimesUsed() (r int, exists bool) {
+	v := m.addtimes_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTimesUsed resets all changes to the "times_used" field.
+func (m *ReceiveAddressMutation) ResetTimesUsed() {
+	m.times_used = nil
+	m.addtimes_used = nil
+}
+
 // SetLastIndexedBlock sets the "last_indexed_block" field.
 func (m *ReceiveAddressMutation) SetLastIndexedBlock(i int64) {
 	m.last_indexed_block = &i
@@ -19003,7 +19492,7 @@ func (m *ReceiveAddressMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ReceiveAddressMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, receiveaddress.FieldCreatedAt)
 	}
@@ -19018,6 +19507,33 @@ func (m *ReceiveAddressMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, receiveaddress.FieldStatus)
+	}
+	if m.is_deployed != nil {
+		fields = append(fields, receiveaddress.FieldIsDeployed)
+	}
+	if m.deployment_block != nil {
+		fields = append(fields, receiveaddress.FieldDeploymentBlock)
+	}
+	if m.deployment_tx_hash != nil {
+		fields = append(fields, receiveaddress.FieldDeploymentTxHash)
+	}
+	if m.deployed_at != nil {
+		fields = append(fields, receiveaddress.FieldDeployedAt)
+	}
+	if m.network_identifier != nil {
+		fields = append(fields, receiveaddress.FieldNetworkIdentifier)
+	}
+	if m.chain_id != nil {
+		fields = append(fields, receiveaddress.FieldChainID)
+	}
+	if m.assigned_at != nil {
+		fields = append(fields, receiveaddress.FieldAssignedAt)
+	}
+	if m.recycled_at != nil {
+		fields = append(fields, receiveaddress.FieldRecycledAt)
+	}
+	if m.times_used != nil {
+		fields = append(fields, receiveaddress.FieldTimesUsed)
 	}
 	if m.last_indexed_block != nil {
 		fields = append(fields, receiveaddress.FieldLastIndexedBlock)
@@ -19049,6 +19565,24 @@ func (m *ReceiveAddressMutation) Field(name string) (ent.Value, bool) {
 		return m.Salt()
 	case receiveaddress.FieldStatus:
 		return m.Status()
+	case receiveaddress.FieldIsDeployed:
+		return m.IsDeployed()
+	case receiveaddress.FieldDeploymentBlock:
+		return m.DeploymentBlock()
+	case receiveaddress.FieldDeploymentTxHash:
+		return m.DeploymentTxHash()
+	case receiveaddress.FieldDeployedAt:
+		return m.DeployedAt()
+	case receiveaddress.FieldNetworkIdentifier:
+		return m.NetworkIdentifier()
+	case receiveaddress.FieldChainID:
+		return m.ChainID()
+	case receiveaddress.FieldAssignedAt:
+		return m.AssignedAt()
+	case receiveaddress.FieldRecycledAt:
+		return m.RecycledAt()
+	case receiveaddress.FieldTimesUsed:
+		return m.TimesUsed()
 	case receiveaddress.FieldLastIndexedBlock:
 		return m.LastIndexedBlock()
 	case receiveaddress.FieldLastUsed:
@@ -19076,6 +19610,24 @@ func (m *ReceiveAddressMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldSalt(ctx)
 	case receiveaddress.FieldStatus:
 		return m.OldStatus(ctx)
+	case receiveaddress.FieldIsDeployed:
+		return m.OldIsDeployed(ctx)
+	case receiveaddress.FieldDeploymentBlock:
+		return m.OldDeploymentBlock(ctx)
+	case receiveaddress.FieldDeploymentTxHash:
+		return m.OldDeploymentTxHash(ctx)
+	case receiveaddress.FieldDeployedAt:
+		return m.OldDeployedAt(ctx)
+	case receiveaddress.FieldNetworkIdentifier:
+		return m.OldNetworkIdentifier(ctx)
+	case receiveaddress.FieldChainID:
+		return m.OldChainID(ctx)
+	case receiveaddress.FieldAssignedAt:
+		return m.OldAssignedAt(ctx)
+	case receiveaddress.FieldRecycledAt:
+		return m.OldRecycledAt(ctx)
+	case receiveaddress.FieldTimesUsed:
+		return m.OldTimesUsed(ctx)
 	case receiveaddress.FieldLastIndexedBlock:
 		return m.OldLastIndexedBlock(ctx)
 	case receiveaddress.FieldLastUsed:
@@ -19128,6 +19680,69 @@ func (m *ReceiveAddressMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
+	case receiveaddress.FieldIsDeployed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsDeployed(v)
+		return nil
+	case receiveaddress.FieldDeploymentBlock:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeploymentBlock(v)
+		return nil
+	case receiveaddress.FieldDeploymentTxHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeploymentTxHash(v)
+		return nil
+	case receiveaddress.FieldDeployedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeployedAt(v)
+		return nil
+	case receiveaddress.FieldNetworkIdentifier:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNetworkIdentifier(v)
+		return nil
+	case receiveaddress.FieldChainID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChainID(v)
+		return nil
+	case receiveaddress.FieldAssignedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssignedAt(v)
+		return nil
+	case receiveaddress.FieldRecycledAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRecycledAt(v)
+		return nil
+	case receiveaddress.FieldTimesUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimesUsed(v)
+		return nil
 	case receiveaddress.FieldLastIndexedBlock:
 		v, ok := value.(int64)
 		if !ok {
@@ -19164,6 +19779,15 @@ func (m *ReceiveAddressMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ReceiveAddressMutation) AddedFields() []string {
 	var fields []string
+	if m.adddeployment_block != nil {
+		fields = append(fields, receiveaddress.FieldDeploymentBlock)
+	}
+	if m.addchain_id != nil {
+		fields = append(fields, receiveaddress.FieldChainID)
+	}
+	if m.addtimes_used != nil {
+		fields = append(fields, receiveaddress.FieldTimesUsed)
+	}
 	if m.addlast_indexed_block != nil {
 		fields = append(fields, receiveaddress.FieldLastIndexedBlock)
 	}
@@ -19175,6 +19799,12 @@ func (m *ReceiveAddressMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ReceiveAddressMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case receiveaddress.FieldDeploymentBlock:
+		return m.AddedDeploymentBlock()
+	case receiveaddress.FieldChainID:
+		return m.AddedChainID()
+	case receiveaddress.FieldTimesUsed:
+		return m.AddedTimesUsed()
 	case receiveaddress.FieldLastIndexedBlock:
 		return m.AddedLastIndexedBlock()
 	}
@@ -19186,6 +19816,27 @@ func (m *ReceiveAddressMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ReceiveAddressMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case receiveaddress.FieldDeploymentBlock:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeploymentBlock(v)
+		return nil
+	case receiveaddress.FieldChainID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddChainID(v)
+		return nil
+	case receiveaddress.FieldTimesUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTimesUsed(v)
+		return nil
 	case receiveaddress.FieldLastIndexedBlock:
 		v, ok := value.(int64)
 		if !ok {
@@ -19203,6 +19854,27 @@ func (m *ReceiveAddressMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(receiveaddress.FieldSalt) {
 		fields = append(fields, receiveaddress.FieldSalt)
+	}
+	if m.FieldCleared(receiveaddress.FieldDeploymentBlock) {
+		fields = append(fields, receiveaddress.FieldDeploymentBlock)
+	}
+	if m.FieldCleared(receiveaddress.FieldDeploymentTxHash) {
+		fields = append(fields, receiveaddress.FieldDeploymentTxHash)
+	}
+	if m.FieldCleared(receiveaddress.FieldDeployedAt) {
+		fields = append(fields, receiveaddress.FieldDeployedAt)
+	}
+	if m.FieldCleared(receiveaddress.FieldNetworkIdentifier) {
+		fields = append(fields, receiveaddress.FieldNetworkIdentifier)
+	}
+	if m.FieldCleared(receiveaddress.FieldChainID) {
+		fields = append(fields, receiveaddress.FieldChainID)
+	}
+	if m.FieldCleared(receiveaddress.FieldAssignedAt) {
+		fields = append(fields, receiveaddress.FieldAssignedAt)
+	}
+	if m.FieldCleared(receiveaddress.FieldRecycledAt) {
+		fields = append(fields, receiveaddress.FieldRecycledAt)
 	}
 	if m.FieldCleared(receiveaddress.FieldLastIndexedBlock) {
 		fields = append(fields, receiveaddress.FieldLastIndexedBlock)
@@ -19232,6 +19904,27 @@ func (m *ReceiveAddressMutation) ClearField(name string) error {
 	switch name {
 	case receiveaddress.FieldSalt:
 		m.ClearSalt()
+		return nil
+	case receiveaddress.FieldDeploymentBlock:
+		m.ClearDeploymentBlock()
+		return nil
+	case receiveaddress.FieldDeploymentTxHash:
+		m.ClearDeploymentTxHash()
+		return nil
+	case receiveaddress.FieldDeployedAt:
+		m.ClearDeployedAt()
+		return nil
+	case receiveaddress.FieldNetworkIdentifier:
+		m.ClearNetworkIdentifier()
+		return nil
+	case receiveaddress.FieldChainID:
+		m.ClearChainID()
+		return nil
+	case receiveaddress.FieldAssignedAt:
+		m.ClearAssignedAt()
+		return nil
+	case receiveaddress.FieldRecycledAt:
+		m.ClearRecycledAt()
 		return nil
 	case receiveaddress.FieldLastIndexedBlock:
 		m.ClearLastIndexedBlock()
@@ -19267,6 +19960,33 @@ func (m *ReceiveAddressMutation) ResetField(name string) error {
 		return nil
 	case receiveaddress.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case receiveaddress.FieldIsDeployed:
+		m.ResetIsDeployed()
+		return nil
+	case receiveaddress.FieldDeploymentBlock:
+		m.ResetDeploymentBlock()
+		return nil
+	case receiveaddress.FieldDeploymentTxHash:
+		m.ResetDeploymentTxHash()
+		return nil
+	case receiveaddress.FieldDeployedAt:
+		m.ResetDeployedAt()
+		return nil
+	case receiveaddress.FieldNetworkIdentifier:
+		m.ResetNetworkIdentifier()
+		return nil
+	case receiveaddress.FieldChainID:
+		m.ResetChainID()
+		return nil
+	case receiveaddress.FieldAssignedAt:
+		m.ResetAssignedAt()
+		return nil
+	case receiveaddress.FieldRecycledAt:
+		m.ResetRecycledAt()
+		return nil
+	case receiveaddress.FieldTimesUsed:
+		m.ResetTimesUsed()
 		return nil
 	case receiveaddress.FieldLastIndexedBlock:
 		m.ResetLastIndexedBlock()

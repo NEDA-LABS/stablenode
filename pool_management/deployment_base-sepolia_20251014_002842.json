@@ -1,0 +1,42 @@
+[
+  {
+    "address": "0xe0062CB49FD6Ae66eB0ba3978D012a7943Da37eE",
+    "tx_hash": "0x955136810bac2c0887b61fe768909074bfb1be3bd683fd3cb2632de53ba839d3",
+    "block_number": 0,
+    "success": false,
+    "error": "Failed to get receipt: timeout waiting for receipt",
+    "gas_used": 0
+  },
+  {
+    "address": "0x1bEC13D9DEC37BFd41bE3B55Cc918425ce3808a9",
+    "tx_hash": "",
+    "block_number": 0,
+    "success": false,
+    "error": "Failed to send transaction: transaction underpriced",
+    "gas_used": 0
+  },
+  {
+    "address": "0x5d7D3d6bcF4D248c7107D6a5f1aD7330CA520ECa",
+    "tx_hash": "",
+    "block_number": 0,
+    "success": false,
+    "error": "Failed to send transaction: replacement transaction underpriced",
+    "gas_used": 0
+  },
+  {
+    "address": "0xA343eE4b848646D3aE995154304e5195dbF7F4f5",
+    "tx_hash": "",
+    "block_number": 0,
+    "success": false,
+    "error": "Failed to send transaction: replacement transaction underpriced",
+    "gas_used": 0
+  },
+  {
+    "address": "0x87cd4DC04198ECE93F9E2408A111c3B2CA05E644",
+    "tx_hash": "",
+    "block_number": 0,
+    "success": false,
+    "error": "Failed to send transaction: replacement transaction underpriced",
+    "gas_used": 0
+  }
+]

@@ -571,9 +571,18 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "address", Type: field.TypeString, Unique: true},
+		{Name: "address", Type: field.TypeString},
 		{Name: "salt", Type: field.TypeBytes, Nullable: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"unused", "used", "expired"}, Default: "unused"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pool_ready", "pool_assigned", "pool_processing", "pool_completed", "unused", "used", "expired"}, Default: "unused"},
+		{Name: "is_deployed", Type: field.TypeBool, Default: false},
+		{Name: "deployment_block", Type: field.TypeInt64, Nullable: true},
+		{Name: "deployment_tx_hash", Type: field.TypeString, Nullable: true, Size: 70},
+		{Name: "deployed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "network_identifier", Type: field.TypeString, Nullable: true},
+		{Name: "chain_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "assigned_at", Type: field.TypeTime, Nullable: true},
+		{Name: "recycled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "times_used", Type: field.TypeInt, Default: 0},
 		{Name: "last_indexed_block", Type: field.TypeInt64, Nullable: true},
 		{Name: "last_used", Type: field.TypeTime, Nullable: true},
 		{Name: "tx_hash", Type: field.TypeString, Nullable: true, Size: 70},
@@ -588,9 +597,26 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "receive_addresses_payment_orders_receive_address",
-				Columns:    []*schema.Column{ReceiveAddressesColumns[10]},
+				Columns:    []*schema.Column{ReceiveAddressesColumns[19]},
 				RefColumns: []*schema.Column{PaymentOrdersColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "receiveaddress_status_is_deployed_network_identifier",
+				Unique:  false,
+				Columns: []*schema.Column{ReceiveAddressesColumns[5], ReceiveAddressesColumns[6], ReceiveAddressesColumns[10]},
+			},
+			{
+				Name:    "receiveaddress_chain_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{ReceiveAddressesColumns[11], ReceiveAddressesColumns[5]},
+			},
+			{
+				Name:    "receiveaddress_times_used",
+				Unique:  false,
+				Columns: []*schema.Column{ReceiveAddressesColumns[14]},
 			},
 		},
 	}

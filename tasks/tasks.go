@@ -1342,6 +1342,11 @@ func resolveMissedEvents(ctx context.Context, network *ent.Network) {
 			paymentorder.StatusEQ(paymentorder.StatusInitiated),
 			paymentorder.CreatedAtLTE(time.Now().Add(-30*time.Second)),
 			// paymentorder.CreatedAtGTE(time.Now().Add(-15*time.Minute)),
+			// Only check orders that haven't been paid yet (no tx_hash)
+			paymentorder.Or(
+				paymentorder.TxHashIsNil(),
+				paymentorder.TxHashEQ(""),
+			),
 			paymentorder.HasReceiveAddressWith(
 				receiveaddress.StatusNEQ(receiveaddress.StatusExpired),
 			),

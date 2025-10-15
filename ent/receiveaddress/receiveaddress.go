@@ -25,6 +25,24 @@ const (
 	FieldSalt = "salt"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldIsDeployed holds the string denoting the is_deployed field in the database.
+	FieldIsDeployed = "is_deployed"
+	// FieldDeploymentBlock holds the string denoting the deployment_block field in the database.
+	FieldDeploymentBlock = "deployment_block"
+	// FieldDeploymentTxHash holds the string denoting the deployment_tx_hash field in the database.
+	FieldDeploymentTxHash = "deployment_tx_hash"
+	// FieldDeployedAt holds the string denoting the deployed_at field in the database.
+	FieldDeployedAt = "deployed_at"
+	// FieldNetworkIdentifier holds the string denoting the network_identifier field in the database.
+	FieldNetworkIdentifier = "network_identifier"
+	// FieldChainID holds the string denoting the chain_id field in the database.
+	FieldChainID = "chain_id"
+	// FieldAssignedAt holds the string denoting the assigned_at field in the database.
+	FieldAssignedAt = "assigned_at"
+	// FieldRecycledAt holds the string denoting the recycled_at field in the database.
+	FieldRecycledAt = "recycled_at"
+	// FieldTimesUsed holds the string denoting the times_used field in the database.
+	FieldTimesUsed = "times_used"
 	// FieldLastIndexedBlock holds the string denoting the last_indexed_block field in the database.
 	FieldLastIndexedBlock = "last_indexed_block"
 	// FieldLastUsed holds the string denoting the last_used field in the database.
@@ -54,6 +72,15 @@ var Columns = []string{
 	FieldAddress,
 	FieldSalt,
 	FieldStatus,
+	FieldIsDeployed,
+	FieldDeploymentBlock,
+	FieldDeploymentTxHash,
+	FieldDeployedAt,
+	FieldNetworkIdentifier,
+	FieldChainID,
+	FieldAssignedAt,
+	FieldRecycledAt,
+	FieldTimesUsed,
 	FieldLastIndexedBlock,
 	FieldLastUsed,
 	FieldTxHash,
@@ -88,6 +115,12 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultIsDeployed holds the default value on creation for the "is_deployed" field.
+	DefaultIsDeployed bool
+	// DeploymentTxHashValidator is a validator for the "deployment_tx_hash" field. It is called by the builders before save.
+	DeploymentTxHashValidator func(string) error
+	// DefaultTimesUsed holds the default value on creation for the "times_used" field.
+	DefaultTimesUsed int
 	// TxHashValidator is a validator for the "tx_hash" field. It is called by the builders before save.
 	TxHashValidator func(string) error
 )
@@ -100,9 +133,13 @@ const DefaultStatus = StatusUnused
 
 // Status values.
 const (
-	StatusUnused  Status = "unused"
-	StatusUsed    Status = "used"
-	StatusExpired Status = "expired"
+	StatusPoolReady      Status = "pool_ready"
+	StatusPoolAssigned   Status = "pool_assigned"
+	StatusPoolProcessing Status = "pool_processing"
+	StatusPoolCompleted  Status = "pool_completed"
+	StatusUnused         Status = "unused"
+	StatusUsed           Status = "used"
+	StatusExpired        Status = "expired"
 )
 
 func (s Status) String() string {
@@ -112,7 +149,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusUnused, StatusUsed, StatusExpired:
+	case StatusPoolReady, StatusPoolAssigned, StatusPoolProcessing, StatusPoolCompleted, StatusUnused, StatusUsed, StatusExpired:
 		return nil
 	default:
 		return fmt.Errorf("receiveaddress: invalid enum value for status field: %q", s)
@@ -145,6 +182,51 @@ func ByAddress(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByIsDeployed orders the results by the is_deployed field.
+func ByIsDeployed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsDeployed, opts...).ToFunc()
+}
+
+// ByDeploymentBlock orders the results by the deployment_block field.
+func ByDeploymentBlock(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeploymentBlock, opts...).ToFunc()
+}
+
+// ByDeploymentTxHash orders the results by the deployment_tx_hash field.
+func ByDeploymentTxHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeploymentTxHash, opts...).ToFunc()
+}
+
+// ByDeployedAt orders the results by the deployed_at field.
+func ByDeployedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeployedAt, opts...).ToFunc()
+}
+
+// ByNetworkIdentifier orders the results by the network_identifier field.
+func ByNetworkIdentifier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNetworkIdentifier, opts...).ToFunc()
+}
+
+// ByChainID orders the results by the chain_id field.
+func ByChainID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldChainID, opts...).ToFunc()
+}
+
+// ByAssignedAt orders the results by the assigned_at field.
+func ByAssignedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAssignedAt, opts...).ToFunc()
+}
+
+// ByRecycledAt orders the results by the recycled_at field.
+func ByRecycledAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRecycledAt, opts...).ToFunc()
+}
+
+// ByTimesUsed orders the results by the times_used field.
+func ByTimesUsed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimesUsed, opts...).ToFunc()
 }
 
 // ByLastIndexedBlock orders the results by the last_indexed_block field.

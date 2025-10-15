@@ -60,11 +60,34 @@ func ProcessReceiveAddresses(
 		Query().
 		Where(
 			paymentorder.HasReceiveAddressWith(
-				receiveaddress.StatusEQ(receiveaddress.StatusUnused),
-				receiveaddress.ValidUntilGT(time.Now()),
-				receiveaddress.AddressIn(unknownAddresses...),
+				receiveaddress.Or(
+					receiveaddress.StatusEQ(receiveaddress.StatusUnused),
+					receiveaddress.StatusEQ(receiveaddress.StatusPoolAssigned),
+				),
+				receiveaddress.Or(
+					// Pool addresses may have NULL valid_until
+					receiveaddress.ValidUntilIsNil(),
+					receiveaddress.ValidUntilGT(time.Now()),
+				),
+				receiveaddress.Or(
+					func(s *sql.Selector) {
+						// Case-insensitive address matching
+						for i, addr := range unknownAddresses {
+							if i == 0 {
+								s.Where(sql.EQ(sql.Lower("address"), strings.ToLower(addr)))
+							} else {
+								s.Or().Where(sql.EQ(sql.Lower("address"), strings.ToLower(addr)))
+							}
+						}
+					},
+				),
 			),
 			paymentorder.StatusEQ(paymentorder.StatusInitiated),
+			// Only get orders that haven't been paid yet (no tx_hash)
+			paymentorder.Or(
+				paymentorder.TxHashIsNil(),
+				paymentorder.TxHashEQ(""),
+			),
 		).
 		WithToken(func(tq *ent.TokenQuery) {
 			tq.WithNetwork()
@@ -89,7 +112,16 @@ func ProcessReceiveAddresses(
 		wg.Add(1)
 		go func(order *ent.PaymentOrder, receiveAddress *ent.ReceiveAddress) {
 			defer wg.Done()
-			transferEvent, ok := addressToEvent[receiveAddress.Address]
+			// Case-insensitive lookup in addressToEvent map
+			var transferEvent *types.TokenTransferEvent
+			var ok bool
+			for addr, event := range addressToEvent {
+				if strings.EqualFold(addr, receiveAddress.Address) {
+					transferEvent = event
+					ok = true
+					break
+				}
+			}
 			if !ok {
 				logger.WithFields(logger.Fields{
 					"ReceiveAddress": receiveAddress.Address,
@@ -498,7 +530,8 @@ func UpdateReceiveAddressStatus(
 	createOrder func(ctx context.Context, orderID uuid.UUID) error,
 	getProviderRate func(ctx context.Context, providerProfile *ent.ProviderProfile, tokenSymbol string, currency string) (decimal.Decimal, error),
 ) (done bool, err error) {
-	if event.To == receiveAddress.Address {
+	// Case-insensitive address comparison
+	if strings.EqualFold(event.To, receiveAddress.Address) {
 		// Check for existing address with txHash
 		count, err := db.Client.ReceiveAddress.
 			Query().
@@ -625,7 +658,8 @@ func UpdateReceiveAddressStatus(
 		}).Info("Processing receive address status after update")
 
 		// Check if this transaction has already been processed to prevent duplicate amount additions
-		if paymentOrder.AmountPaid.GreaterThanOrEqual(decimal.Zero) && paymentOrder.TxHash != event.TxHash {
+		// Only process if order hasn't been paid yet (no tx_hash or empty tx_hash)
+		if (paymentOrder.TxHash == "" || paymentOrder.TxHash == event.TxHash) && paymentOrder.Status == paymentorder.StatusInitiated {
 			logger.WithFields(logger.Fields{
 				"OrderID":     paymentOrder.ID,
 				"TxHash":      event.TxHash,

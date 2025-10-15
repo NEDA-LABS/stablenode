@@ -807,6 +807,42 @@ func UpdateOrderStatusSettled(ctx context.Context, network *ent.Network, event *
 		paymentOrder.GatewayID = event.OrderId
 		paymentOrder.TxHash = event.TxHash
 		paymentOrder.PercentSettled = settledPercent
+		
+		// Mark order's receive address as settled when order is fully settled
+		if settledPercent.GreaterThanOrEqual(decimal.NewFromInt(100)) {
+			// Get the receive address from the payment order
+			orderWithAddr, err := tx.PaymentOrder.
+				Query().
+				Where(paymentorder.IDEQ(paymentOrder.ID)).
+				WithReceiveAddress().
+				Only(ctx)
+			if err == nil && orderWithAddr != nil && orderWithAddr.Edges.ReceiveAddress != nil {
+				receiveAddr := orderWithAddr.Edges.ReceiveAddress
+				// Mark this order's receive address recycling time
+				if receiveAddr.IsDeployed && receiveAddr.Status == receiveaddress.StatusUsed {
+					// Just update recycled_at timestamp (status stays 'used')
+					// The pool address row (separate) remains 'pool_ready'
+					_, err = tx.ReceiveAddress.
+						UpdateOne(receiveAddr).
+						SetRecycledAt(time.Now()).
+						Save(ctx)
+					if err != nil {
+						logger.WithFields(logger.Fields{
+							"Error":   err.Error(),
+							"Address": receiveAddr.Address,
+							"OrderID": paymentOrder.ID,
+						}).Errorf("Failed to mark order receive address as settled")
+						// Don't fail the whole transaction for this
+					} else {
+						logger.WithFields(logger.Fields{
+							"Address": receiveAddr.Address,
+							"OrderID": paymentOrder.ID,
+							"ReceiveAddressID": receiveAddr.ID,
+						}).Info("Order receive address marked as settled (pool address remains ready)")
+					}
+				}
+			}
+		}
 	}
 
 	// Commit the transaction

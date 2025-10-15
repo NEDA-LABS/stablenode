@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	ethereumtypes "github.com/ethereum/go-ethereum/core/types"
@@ -1445,33 +1444,27 @@ func (s *AlchemyService) signUserOperation(ctx context.Context, chainID int64, u
 	
 	finalHash := crypto.Keccak256Hash(finalPacked)
 	
-	// For Light Account v2, we need to sign the hash as an Ethereum signed message
-	// This adds the "\x19Ethereum Signed Message:\n32" prefix
-	ethSignedMessageHash := accounts.TextHash(finalHash.Bytes())
-	
 	logger.WithFields(logger.Fields{
 		"UserOpHash": userOpHash.Hex(),
 		"FinalHash":  finalHash.Hex(),
-		"EthSignedMessageHash": "0x" + common.Bytes2Hex(ethSignedMessageHash),
 		"EntryPoint": entryPoint.Hex(),
 		"ChainID":    chainID,
 	}).Info("Computed UserOp hash for signing")
 	
-	// Sign the Ethereum signed message hash
-	signature, err := crypto.Sign(ethSignedMessageHash, privateKey)
+	// Sign the hash
+	signature, err := crypto.Sign(finalHash.Bytes(), privateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign user operation: %w", err)
 	}
 	
 	// For Light Account v2.0.0 with EntryPoint v0.7:
-	// Typed signature: 0x00 (EOA) || r || s || v (v in {27,28})
+	// Based on working examples, the signature is just r + s + v (no type prefix)
+	// Adjust v to 27/28 for Ethereum compatibility
 	if signature[64] < 27 {
 		signature[64] += 27
 	}
-	// Prepend signature type byte 0x00 for EOA signatures
-	typedSignature := append([]byte{0x00}, signature...)
 	
-	finalSignature := "0x" + common.Bytes2Hex(typedSignature)
+	finalSignature := "0x" + common.Bytes2Hex(signature)
 	
 	logger.WithFields(logger.Fields{
 		"SignatureLength": len(finalSignature),

@@ -76,6 +76,195 @@ func (rau *ReceiveAddressUpdate) SetNillableStatus(r *receiveaddress.Status) *Re
 	return rau
 }
 
+// SetIsDeployed sets the "is_deployed" field.
+func (rau *ReceiveAddressUpdate) SetIsDeployed(b bool) *ReceiveAddressUpdate {
+	rau.mutation.SetIsDeployed(b)
+	return rau
+}
+
+// SetNillableIsDeployed sets the "is_deployed" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableIsDeployed(b *bool) *ReceiveAddressUpdate {
+	if b != nil {
+		rau.SetIsDeployed(*b)
+	}
+	return rau
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (rau *ReceiveAddressUpdate) SetDeploymentBlock(i int64) *ReceiveAddressUpdate {
+	rau.mutation.ResetDeploymentBlock()
+	rau.mutation.SetDeploymentBlock(i)
+	return rau
+}
+
+// SetNillableDeploymentBlock sets the "deployment_block" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableDeploymentBlock(i *int64) *ReceiveAddressUpdate {
+	if i != nil {
+		rau.SetDeploymentBlock(*i)
+	}
+	return rau
+}
+
+// AddDeploymentBlock adds i to the "deployment_block" field.
+func (rau *ReceiveAddressUpdate) AddDeploymentBlock(i int64) *ReceiveAddressUpdate {
+	rau.mutation.AddDeploymentBlock(i)
+	return rau
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (rau *ReceiveAddressUpdate) ClearDeploymentBlock() *ReceiveAddressUpdate {
+	rau.mutation.ClearDeploymentBlock()
+	return rau
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (rau *ReceiveAddressUpdate) SetDeploymentTxHash(s string) *ReceiveAddressUpdate {
+	rau.mutation.SetDeploymentTxHash(s)
+	return rau
+}
+
+// SetNillableDeploymentTxHash sets the "deployment_tx_hash" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableDeploymentTxHash(s *string) *ReceiveAddressUpdate {
+	if s != nil {
+		rau.SetDeploymentTxHash(*s)
+	}
+	return rau
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (rau *ReceiveAddressUpdate) ClearDeploymentTxHash() *ReceiveAddressUpdate {
+	rau.mutation.ClearDeploymentTxHash()
+	return rau
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (rau *ReceiveAddressUpdate) SetDeployedAt(t time.Time) *ReceiveAddressUpdate {
+	rau.mutation.SetDeployedAt(t)
+	return rau
+}
+
+// SetNillableDeployedAt sets the "deployed_at" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableDeployedAt(t *time.Time) *ReceiveAddressUpdate {
+	if t != nil {
+		rau.SetDeployedAt(*t)
+	}
+	return rau
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (rau *ReceiveAddressUpdate) ClearDeployedAt() *ReceiveAddressUpdate {
+	rau.mutation.ClearDeployedAt()
+	return rau
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (rau *ReceiveAddressUpdate) SetNetworkIdentifier(s string) *ReceiveAddressUpdate {
+	rau.mutation.SetNetworkIdentifier(s)
+	return rau
+}
+
+// SetNillableNetworkIdentifier sets the "network_identifier" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableNetworkIdentifier(s *string) *ReceiveAddressUpdate {
+	if s != nil {
+		rau.SetNetworkIdentifier(*s)
+	}
+	return rau
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (rau *ReceiveAddressUpdate) ClearNetworkIdentifier() *ReceiveAddressUpdate {
+	rau.mutation.ClearNetworkIdentifier()
+	return rau
+}
+
+// SetChainID sets the "chain_id" field.
+func (rau *ReceiveAddressUpdate) SetChainID(i int64) *ReceiveAddressUpdate {
+	rau.mutation.ResetChainID()
+	rau.mutation.SetChainID(i)
+	return rau
+}
+
+// SetNillableChainID sets the "chain_id" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableChainID(i *int64) *ReceiveAddressUpdate {
+	if i != nil {
+		rau.SetChainID(*i)
+	}
+	return rau
+}
+
+// AddChainID adds i to the "chain_id" field.
+func (rau *ReceiveAddressUpdate) AddChainID(i int64) *ReceiveAddressUpdate {
+	rau.mutation.AddChainID(i)
+	return rau
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (rau *ReceiveAddressUpdate) ClearChainID() *ReceiveAddressUpdate {
+	rau.mutation.ClearChainID()
+	return rau
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (rau *ReceiveAddressUpdate) SetAssignedAt(t time.Time) *ReceiveAddressUpdate {
+	rau.mutation.SetAssignedAt(t)
+	return rau
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableAssignedAt(t *time.Time) *ReceiveAddressUpdate {
+	if t != nil {
+		rau.SetAssignedAt(*t)
+	}
+	return rau
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (rau *ReceiveAddressUpdate) ClearAssignedAt() *ReceiveAddressUpdate {
+	rau.mutation.ClearAssignedAt()
+	return rau
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (rau *ReceiveAddressUpdate) SetRecycledAt(t time.Time) *ReceiveAddressUpdate {
+	rau.mutation.SetRecycledAt(t)
+	return rau
+}
+
+// SetNillableRecycledAt sets the "recycled_at" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableRecycledAt(t *time.Time) *ReceiveAddressUpdate {
+	if t != nil {
+		rau.SetRecycledAt(*t)
+	}
+	return rau
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (rau *ReceiveAddressUpdate) ClearRecycledAt() *ReceiveAddressUpdate {
+	rau.mutation.ClearRecycledAt()
+	return rau
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (rau *ReceiveAddressUpdate) SetTimesUsed(i int) *ReceiveAddressUpdate {
+	rau.mutation.ResetTimesUsed()
+	rau.mutation.SetTimesUsed(i)
+	return rau
+}
+
+// SetNillableTimesUsed sets the "times_used" field if the given value is not nil.
+func (rau *ReceiveAddressUpdate) SetNillableTimesUsed(i *int) *ReceiveAddressUpdate {
+	if i != nil {
+		rau.SetTimesUsed(*i)
+	}
+	return rau
+}
+
+// AddTimesUsed adds i to the "times_used" field.
+func (rau *ReceiveAddressUpdate) AddTimesUsed(i int) *ReceiveAddressUpdate {
+	rau.mutation.AddTimesUsed(i)
+	return rau
+}
+
 // SetLastIndexedBlock sets the "last_indexed_block" field.
 func (rau *ReceiveAddressUpdate) SetLastIndexedBlock(i int64) *ReceiveAddressUpdate {
 	rau.mutation.ResetLastIndexedBlock()
@@ -236,6 +425,11 @@ func (rau *ReceiveAddressUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.status": %w`, err)}
 		}
 	}
+	if v, ok := rau.mutation.DeploymentTxHash(); ok {
+		if err := receiveaddress.DeploymentTxHashValidator(v); err != nil {
+			return &ValidationError{Name: "deployment_tx_hash", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.deployment_tx_hash": %w`, err)}
+		}
+	}
 	if v, ok := rau.mutation.TxHash(); ok {
 		if err := receiveaddress.TxHashValidator(v); err != nil {
 			return &ValidationError{Name: "tx_hash", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.tx_hash": %w`, err)}
@@ -270,6 +464,63 @@ func (rau *ReceiveAddressUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if value, ok := rau.mutation.Status(); ok {
 		_spec.SetField(receiveaddress.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := rau.mutation.IsDeployed(); ok {
+		_spec.SetField(receiveaddress.FieldIsDeployed, field.TypeBool, value)
+	}
+	if value, ok := rau.mutation.DeploymentBlock(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentBlock, field.TypeInt64, value)
+	}
+	if value, ok := rau.mutation.AddedDeploymentBlock(); ok {
+		_spec.AddField(receiveaddress.FieldDeploymentBlock, field.TypeInt64, value)
+	}
+	if rau.mutation.DeploymentBlockCleared() {
+		_spec.ClearField(receiveaddress.FieldDeploymentBlock, field.TypeInt64)
+	}
+	if value, ok := rau.mutation.DeploymentTxHash(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentTxHash, field.TypeString, value)
+	}
+	if rau.mutation.DeploymentTxHashCleared() {
+		_spec.ClearField(receiveaddress.FieldDeploymentTxHash, field.TypeString)
+	}
+	if value, ok := rau.mutation.DeployedAt(); ok {
+		_spec.SetField(receiveaddress.FieldDeployedAt, field.TypeTime, value)
+	}
+	if rau.mutation.DeployedAtCleared() {
+		_spec.ClearField(receiveaddress.FieldDeployedAt, field.TypeTime)
+	}
+	if value, ok := rau.mutation.NetworkIdentifier(); ok {
+		_spec.SetField(receiveaddress.FieldNetworkIdentifier, field.TypeString, value)
+	}
+	if rau.mutation.NetworkIdentifierCleared() {
+		_spec.ClearField(receiveaddress.FieldNetworkIdentifier, field.TypeString)
+	}
+	if value, ok := rau.mutation.ChainID(); ok {
+		_spec.SetField(receiveaddress.FieldChainID, field.TypeInt64, value)
+	}
+	if value, ok := rau.mutation.AddedChainID(); ok {
+		_spec.AddField(receiveaddress.FieldChainID, field.TypeInt64, value)
+	}
+	if rau.mutation.ChainIDCleared() {
+		_spec.ClearField(receiveaddress.FieldChainID, field.TypeInt64)
+	}
+	if value, ok := rau.mutation.AssignedAt(); ok {
+		_spec.SetField(receiveaddress.FieldAssignedAt, field.TypeTime, value)
+	}
+	if rau.mutation.AssignedAtCleared() {
+		_spec.ClearField(receiveaddress.FieldAssignedAt, field.TypeTime)
+	}
+	if value, ok := rau.mutation.RecycledAt(); ok {
+		_spec.SetField(receiveaddress.FieldRecycledAt, field.TypeTime, value)
+	}
+	if rau.mutation.RecycledAtCleared() {
+		_spec.ClearField(receiveaddress.FieldRecycledAt, field.TypeTime)
+	}
+	if value, ok := rau.mutation.TimesUsed(); ok {
+		_spec.SetField(receiveaddress.FieldTimesUsed, field.TypeInt, value)
+	}
+	if value, ok := rau.mutation.AddedTimesUsed(); ok {
+		_spec.AddField(receiveaddress.FieldTimesUsed, field.TypeInt, value)
 	}
 	if value, ok := rau.mutation.LastIndexedBlock(); ok {
 		_spec.SetField(receiveaddress.FieldLastIndexedBlock, field.TypeInt64, value)
@@ -390,6 +641,195 @@ func (rauo *ReceiveAddressUpdateOne) SetNillableStatus(r *receiveaddress.Status)
 	if r != nil {
 		rauo.SetStatus(*r)
 	}
+	return rauo
+}
+
+// SetIsDeployed sets the "is_deployed" field.
+func (rauo *ReceiveAddressUpdateOne) SetIsDeployed(b bool) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetIsDeployed(b)
+	return rauo
+}
+
+// SetNillableIsDeployed sets the "is_deployed" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableIsDeployed(b *bool) *ReceiveAddressUpdateOne {
+	if b != nil {
+		rauo.SetIsDeployed(*b)
+	}
+	return rauo
+}
+
+// SetDeploymentBlock sets the "deployment_block" field.
+func (rauo *ReceiveAddressUpdateOne) SetDeploymentBlock(i int64) *ReceiveAddressUpdateOne {
+	rauo.mutation.ResetDeploymentBlock()
+	rauo.mutation.SetDeploymentBlock(i)
+	return rauo
+}
+
+// SetNillableDeploymentBlock sets the "deployment_block" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableDeploymentBlock(i *int64) *ReceiveAddressUpdateOne {
+	if i != nil {
+		rauo.SetDeploymentBlock(*i)
+	}
+	return rauo
+}
+
+// AddDeploymentBlock adds i to the "deployment_block" field.
+func (rauo *ReceiveAddressUpdateOne) AddDeploymentBlock(i int64) *ReceiveAddressUpdateOne {
+	rauo.mutation.AddDeploymentBlock(i)
+	return rauo
+}
+
+// ClearDeploymentBlock clears the value of the "deployment_block" field.
+func (rauo *ReceiveAddressUpdateOne) ClearDeploymentBlock() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearDeploymentBlock()
+	return rauo
+}
+
+// SetDeploymentTxHash sets the "deployment_tx_hash" field.
+func (rauo *ReceiveAddressUpdateOne) SetDeploymentTxHash(s string) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetDeploymentTxHash(s)
+	return rauo
+}
+
+// SetNillableDeploymentTxHash sets the "deployment_tx_hash" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableDeploymentTxHash(s *string) *ReceiveAddressUpdateOne {
+	if s != nil {
+		rauo.SetDeploymentTxHash(*s)
+	}
+	return rauo
+}
+
+// ClearDeploymentTxHash clears the value of the "deployment_tx_hash" field.
+func (rauo *ReceiveAddressUpdateOne) ClearDeploymentTxHash() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearDeploymentTxHash()
+	return rauo
+}
+
+// SetDeployedAt sets the "deployed_at" field.
+func (rauo *ReceiveAddressUpdateOne) SetDeployedAt(t time.Time) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetDeployedAt(t)
+	return rauo
+}
+
+// SetNillableDeployedAt sets the "deployed_at" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableDeployedAt(t *time.Time) *ReceiveAddressUpdateOne {
+	if t != nil {
+		rauo.SetDeployedAt(*t)
+	}
+	return rauo
+}
+
+// ClearDeployedAt clears the value of the "deployed_at" field.
+func (rauo *ReceiveAddressUpdateOne) ClearDeployedAt() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearDeployedAt()
+	return rauo
+}
+
+// SetNetworkIdentifier sets the "network_identifier" field.
+func (rauo *ReceiveAddressUpdateOne) SetNetworkIdentifier(s string) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetNetworkIdentifier(s)
+	return rauo
+}
+
+// SetNillableNetworkIdentifier sets the "network_identifier" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableNetworkIdentifier(s *string) *ReceiveAddressUpdateOne {
+	if s != nil {
+		rauo.SetNetworkIdentifier(*s)
+	}
+	return rauo
+}
+
+// ClearNetworkIdentifier clears the value of the "network_identifier" field.
+func (rauo *ReceiveAddressUpdateOne) ClearNetworkIdentifier() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearNetworkIdentifier()
+	return rauo
+}
+
+// SetChainID sets the "chain_id" field.
+func (rauo *ReceiveAddressUpdateOne) SetChainID(i int64) *ReceiveAddressUpdateOne {
+	rauo.mutation.ResetChainID()
+	rauo.mutation.SetChainID(i)
+	return rauo
+}
+
+// SetNillableChainID sets the "chain_id" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableChainID(i *int64) *ReceiveAddressUpdateOne {
+	if i != nil {
+		rauo.SetChainID(*i)
+	}
+	return rauo
+}
+
+// AddChainID adds i to the "chain_id" field.
+func (rauo *ReceiveAddressUpdateOne) AddChainID(i int64) *ReceiveAddressUpdateOne {
+	rauo.mutation.AddChainID(i)
+	return rauo
+}
+
+// ClearChainID clears the value of the "chain_id" field.
+func (rauo *ReceiveAddressUpdateOne) ClearChainID() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearChainID()
+	return rauo
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (rauo *ReceiveAddressUpdateOne) SetAssignedAt(t time.Time) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetAssignedAt(t)
+	return rauo
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableAssignedAt(t *time.Time) *ReceiveAddressUpdateOne {
+	if t != nil {
+		rauo.SetAssignedAt(*t)
+	}
+	return rauo
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (rauo *ReceiveAddressUpdateOne) ClearAssignedAt() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearAssignedAt()
+	return rauo
+}
+
+// SetRecycledAt sets the "recycled_at" field.
+func (rauo *ReceiveAddressUpdateOne) SetRecycledAt(t time.Time) *ReceiveAddressUpdateOne {
+	rauo.mutation.SetRecycledAt(t)
+	return rauo
+}
+
+// SetNillableRecycledAt sets the "recycled_at" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableRecycledAt(t *time.Time) *ReceiveAddressUpdateOne {
+	if t != nil {
+		rauo.SetRecycledAt(*t)
+	}
+	return rauo
+}
+
+// ClearRecycledAt clears the value of the "recycled_at" field.
+func (rauo *ReceiveAddressUpdateOne) ClearRecycledAt() *ReceiveAddressUpdateOne {
+	rauo.mutation.ClearRecycledAt()
+	return rauo
+}
+
+// SetTimesUsed sets the "times_used" field.
+func (rauo *ReceiveAddressUpdateOne) SetTimesUsed(i int) *ReceiveAddressUpdateOne {
+	rauo.mutation.ResetTimesUsed()
+	rauo.mutation.SetTimesUsed(i)
+	return rauo
+}
+
+// SetNillableTimesUsed sets the "times_used" field if the given value is not nil.
+func (rauo *ReceiveAddressUpdateOne) SetNillableTimesUsed(i *int) *ReceiveAddressUpdateOne {
+	if i != nil {
+		rauo.SetTimesUsed(*i)
+	}
+	return rauo
+}
+
+// AddTimesUsed adds i to the "times_used" field.
+func (rauo *ReceiveAddressUpdateOne) AddTimesUsed(i int) *ReceiveAddressUpdateOne {
+	rauo.mutation.AddTimesUsed(i)
 	return rauo
 }
 
@@ -566,6 +1006,11 @@ func (rauo *ReceiveAddressUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.status": %w`, err)}
 		}
 	}
+	if v, ok := rauo.mutation.DeploymentTxHash(); ok {
+		if err := receiveaddress.DeploymentTxHashValidator(v); err != nil {
+			return &ValidationError{Name: "deployment_tx_hash", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.deployment_tx_hash": %w`, err)}
+		}
+	}
 	if v, ok := rauo.mutation.TxHash(); ok {
 		if err := receiveaddress.TxHashValidator(v); err != nil {
 			return &ValidationError{Name: "tx_hash", err: fmt.Errorf(`ent: validator failed for field "ReceiveAddress.tx_hash": %w`, err)}
@@ -617,6 +1062,63 @@ func (rauo *ReceiveAddressUpdateOne) sqlSave(ctx context.Context) (_node *Receiv
 	}
 	if value, ok := rauo.mutation.Status(); ok {
 		_spec.SetField(receiveaddress.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := rauo.mutation.IsDeployed(); ok {
+		_spec.SetField(receiveaddress.FieldIsDeployed, field.TypeBool, value)
+	}
+	if value, ok := rauo.mutation.DeploymentBlock(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentBlock, field.TypeInt64, value)
+	}
+	if value, ok := rauo.mutation.AddedDeploymentBlock(); ok {
+		_spec.AddField(receiveaddress.FieldDeploymentBlock, field.TypeInt64, value)
+	}
+	if rauo.mutation.DeploymentBlockCleared() {
+		_spec.ClearField(receiveaddress.FieldDeploymentBlock, field.TypeInt64)
+	}
+	if value, ok := rauo.mutation.DeploymentTxHash(); ok {
+		_spec.SetField(receiveaddress.FieldDeploymentTxHash, field.TypeString, value)
+	}
+	if rauo.mutation.DeploymentTxHashCleared() {
+		_spec.ClearField(receiveaddress.FieldDeploymentTxHash, field.TypeString)
+	}
+	if value, ok := rauo.mutation.DeployedAt(); ok {
+		_spec.SetField(receiveaddress.FieldDeployedAt, field.TypeTime, value)
+	}
+	if rauo.mutation.DeployedAtCleared() {
+		_spec.ClearField(receiveaddress.FieldDeployedAt, field.TypeTime)
+	}
+	if value, ok := rauo.mutation.NetworkIdentifier(); ok {
+		_spec.SetField(receiveaddress.FieldNetworkIdentifier, field.TypeString, value)
+	}
+	if rauo.mutation.NetworkIdentifierCleared() {
+		_spec.ClearField(receiveaddress.FieldNetworkIdentifier, field.TypeString)
+	}
+	if value, ok := rauo.mutation.ChainID(); ok {
+		_spec.SetField(receiveaddress.FieldChainID, field.TypeInt64, value)
+	}
+	if value, ok := rauo.mutation.AddedChainID(); ok {
+		_spec.AddField(receiveaddress.FieldChainID, field.TypeInt64, value)
+	}
+	if rauo.mutation.ChainIDCleared() {
+		_spec.ClearField(receiveaddress.FieldChainID, field.TypeInt64)
+	}
+	if value, ok := rauo.mutation.AssignedAt(); ok {
+		_spec.SetField(receiveaddress.FieldAssignedAt, field.TypeTime, value)
+	}
+	if rauo.mutation.AssignedAtCleared() {
+		_spec.ClearField(receiveaddress.FieldAssignedAt, field.TypeTime)
+	}
+	if value, ok := rauo.mutation.RecycledAt(); ok {
+		_spec.SetField(receiveaddress.FieldRecycledAt, field.TypeTime, value)
+	}
+	if rauo.mutation.RecycledAtCleared() {
+		_spec.ClearField(receiveaddress.FieldRecycledAt, field.TypeTime)
+	}
+	if value, ok := rauo.mutation.TimesUsed(); ok {
+		_spec.SetField(receiveaddress.FieldTimesUsed, field.TypeInt, value)
+	}
+	if value, ok := rauo.mutation.AddedTimesUsed(); ok {
+		_spec.AddField(receiveaddress.FieldTimesUsed, field.TypeInt, value)
 	}
 	if value, ok := rauo.mutation.LastIndexedBlock(); ok {
 		_spec.SetField(receiveaddress.FieldLastIndexedBlock, field.TypeInt64, value)

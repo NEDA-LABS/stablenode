@@ -399,48 +399,85 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 			return
 		}
 	} else {
-		// Generate unique label for smart address
-		uniqueLabel := fmt.Sprintf("payment_order_%d_%s", time.Now().UnixNano(), uuid.New().String()[:8])
-		address, encryptedPrivateKey, err := ctrl.receiveAddressService.CreateSmartAddress(ctx, uniqueLabel)
+		// Get ANY pool address (doesn't matter if it's currently in use)
+		// Pool addresses can be reused simultaneously by multiple orders
+		poolAddress, err := storage.Client.ReceiveAddress.
+			Query().
+			Where(
+				receiveaddress.StatusEQ(receiveaddress.StatusPoolReady),
+				receiveaddress.IsDeployedEQ(true),
+				receiveaddress.NetworkIdentifierEQ(token.Edges.Network.Identifier),
+			).
+			Order(ent.Asc(receiveaddress.FieldTimesUsed)). // Use least-used address first
+			First(ctx)
+		
 		if err != nil {
+			// No pool addresses exist at all
+			if ent.IsNotFound(err) {
+				logger.WithFields(logger.Fields{
+					"network": token.Edges.Network.Identifier,
+				}).Errorf("No pool addresses exist for this network")
+				
+				u.APIResponse(ctx, http.StatusServiceUnavailable, "error", "No receive addresses available in pool. Please contact support.", map[string]interface{}{
+					"network": token.Edges.Network.Identifier,
+					"message": "Address pool is empty. Add addresses using pool management tools.",
+				})
+				return
+			}
+			
+			// Database error
 			logger.WithFields(logger.Fields{
-				"error":   err,
-				"address": address,
-			}).Errorf("Failed to create receive address")
-			u.APIResponse(ctx, http.StatusInternalServerError, "error", "Failed to initiate payment order", map[string]interface{}{
-				"context": "create_smart_address",
+				"error": err,
+				"network": token.Edges.Network.Identifier,
+			}).Errorf("Error querying pool")
+			u.APIResponse(ctx, http.StatusInternalServerError, "error", "Failed to query address pool", map[string]interface{}{
+				"network": token.Edges.Network.Identifier,
 			})
 			return
 		}
-
-		// Create receive address record
-		receiveAddressCreate := storage.Client.ReceiveAddress.
+		
+		// Found a pool address - create NEW row for this order with same address
+		logger.WithFields(logger.Fields{
+			"address": poolAddress.Address,
+			"network": token.Edges.Network.Identifier,
+			"pool_id": poolAddress.ID,
+			"times_used": poolAddress.TimesUsed,
+		}).Infof("Using pool address - creating new row for order")
+		
+		// Create a new receive_address row for this order
+		receiveAddress, err = storage.Client.ReceiveAddress.
 			Create().
-			SetAddress(address).
-			SetStatus(receiveaddress.StatusUnused).
-			SetValidUntil(time.Now().Add(orderConf.ReceiveAddressValidity))
-
-		// Store encrypted salt/private key if provided
-		if encryptedPrivateKey != nil {
-			logger.WithFields(logger.Fields{
-				"address": address,
-				"saltLength": len(encryptedPrivateKey),
-			}).Infof("Storing salt for receive address")
-			receiveAddressCreate.SetSalt(encryptedPrivateKey)
-		} else {
-			logger.WithFields(logger.Fields{
-				"address": address,
-			}).Warnf("No salt provided for receive address - salt will be NULL")
-		}
-
-		receiveAddress, err = receiveAddressCreate.Save(ctx)
+			SetAddress(poolAddress.Address).
+			SetStatus(receiveaddress.StatusPoolAssigned).
+			SetIsDeployed(true).
+			SetNetworkIdentifier(poolAddress.NetworkIdentifier).
+			SetChainID(poolAddress.ChainID).
+			SetAssignedAt(time.Now()).
+			SetValidUntil(time.Now().Add(orderConf.ReceiveAddressValidity)).
+			Save(ctx)
+		
 		if err != nil {
 			logger.WithFields(logger.Fields{
-				"error":   err,
-				"address": address,
-			}).Errorf("Failed to create receive address")
+				"error": err,
+				"address": poolAddress.Address,
+			}).Errorf("Failed to create receive address row for pool address")
 			u.APIResponse(ctx, http.StatusInternalServerError, "error", "Failed to initiate payment order", nil)
 			return
+		}
+		
+		// Update the pool address usage counter (keep pool row separate)
+		_, err = storage.Client.ReceiveAddress.
+			UpdateOne(poolAddress).
+			SetTimesUsed(poolAddress.TimesUsed + 1).
+			SetLastUsed(time.Now()).
+			Save(ctx)
+		
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"error": err,
+				"pool_id": poolAddress.ID,
+			}).Warnf("Failed to update pool address usage counter")
+			// Don't fail the order, just log the warning
 		}
 
 	}
@@ -507,6 +544,8 @@ func (ctrl *SenderController) InitiatePaymentOrder(ctx *gin.Context) {
 		_ = tx.Rollback()
 		return
 	}
+
+	// No need to update status here - already done when creating the new row above
 
 	// Create webhook for the smart address to monitor transfers (only for EVM networks)
 	// Skip webhook creation if using Alchemy (webhooks handled separately)
