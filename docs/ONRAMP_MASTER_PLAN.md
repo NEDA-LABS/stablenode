@@ -38,7 +38,8 @@ sequenceDiagram
   A->>DB: Create OnrampOrder (status: initiated, fiat_currency_id set)
   A->>A: Select provider (supports fiatCurrency, token/network)
   A->>A: Fetch/compute rate (fiatCurrency per token)
-  A->>A: Compute amountToken|amountFiat using rate; validate slippage vs provider terms
+  A->>A: Compute amountToken|amountFiat using rate
+  A->>A: Validate slippage vs provider terms
   A->>CH: RPC balanceOf(providerWallet) for liquidity
   A->>DB: Create reservation (providerId, amountToken, TTL)
   alt No provider meets liquidity/rules
