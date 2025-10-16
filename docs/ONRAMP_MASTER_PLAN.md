@@ -45,27 +45,27 @@ sequenceDiagram
   alt No provider meets liquidity/rules
     A-->>U: 409 No provider liquidity for requested amount
   else Provider found
-    A->>PN: POST /onramps (prepare: token, network, fiatCurrency, amountFiat|amountToken, wallet, quotedRate=rate) [HMAC + Idempotency-Key]
+    A->>PN: POST /onramps (prepare with token, network, fiatCurrency, amounts, wallet, rate) [HMAC]
     PN->>PSP: Create virtual account/reference (currency=fiatCurrency)
     PN-->>A: deposit details (account_no, bank_code, account_name, psp_ref, currency, expires_at)
-    A->>DB: Save rate, deposit details; status: awaiting_deposit
+    A->>DB: Save rate and deposit details, set status awaiting_deposit
     A-->>U: Deposit instructions (account_no, bank_code, ref, expires_at, currency, rate)
   end
 
-  Note over U,PSP: User deposits fiat -> PSP posts webhook to Provider Node
-  PSP-->>PN: Webhook: deposit confirmed (amountFiat, currency, pspReference)
-  PN->>A: POST /v1/provider/onramps/:id/fiat-confirm (pspReference, amountFiat, currency) [HMAC + Idempotency-Key]
-  A->>DB: Mark fiat_confirmed; extend reservation TTL
+  Note over U,PSP: User deposits fiat, PSP posts webhook to Provider Node
+  PSP-->>PN: Webhook deposit confirmed (amountFiat, currency, pspReference)
+  PN->>A: POST /v1/provider/onramps/:id/fiat-confirm (pspReference, amount, currency) [HMAC]
+  A->>DB: Mark fiat_confirmed and extend reservation TTL
 
-  A->>PN: POST /onramps/:id/fulfill (toAddress, token, amountToken) [HMAC + Idempotency-Key]
+  A->>PN: POST /onramps/:id/fulfill (toAddress, token, amountToken) [HMAC]
   PN->>CH: Send ERC20 from provider wallet to user address
-  PN-->>A: POST /v1/provider/onramps/:id/complete (txHash, blockNumber) [HMAC + Idempotency-Key]
-  A->>CH: Optional verify transfer (indexer/poll/rpc)
-  A->>DB: Mark settled; persist OnrampTransfer; write TransactionLog
+  PN-->>A: POST /v1/provider/onramps/:id/complete (txHash, blockNumber) [HMAC]
+  A->>CH: Optional verify transfer (indexer or RPC)
+  A->>DB: Mark settled, persist OnrampTransfer, write TransactionLog
   A-->>U: GET /v1/sender/onramps/:id returns status, tx, fiatCurrency, rate, fee
 
   opt Expiry/Cancel
-    A->>DB: On deposit TTL expiry -> cancel order; release reservation
+    A->>DB: On deposit TTL expiry cancel order and release reservation
     A-->>U: 408 Deposit window expired
   end
 
